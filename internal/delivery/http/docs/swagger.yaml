@@ -1,0 +1,211 @@
+definitions:
+  models.CookingSteps:
+    properties:
+      description:
+        type: string
+      guid:
+        type: string
+      order_number:
+        type: integer
+      recipe_id:
+        type: string
+    type: object
+  models.CreateAggregatorRequest:
+    properties:
+      cooking_steps:
+        items:
+          $ref: '#/definitions/models.CreateCookingStepsRequest'
+        type: array
+      ingredients:
+        items:
+          $ref: '#/definitions/models.CreateIngredientsRequest'
+        type: array
+      recipe:
+        $ref: '#/definitions/models.CreateRecipeRequest'
+    type: object
+  models.CreateAggregatorResponse:
+    properties:
+      guid:
+        type: string
+    type: object
+  models.CreateCookingStepsRequest:
+    properties:
+      description:
+        type: string
+      order_number:
+        type: integer
+    type: object
+  models.CreateIngredientsRequest:
+    properties:
+      count:
+        type: number
+      dimension:
+        type: string
+      name:
+        type: string
+    type: object
+  models.CreateRecipeRequest:
+    properties:
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  models.CulinaryAggregator:
+    properties:
+      cooking_steps:
+        items:
+          $ref: '#/definitions/models.CookingSteps'
+        type: array
+      ingredients:
+        items:
+          $ref: '#/definitions/models.Ingredients'
+        type: array
+      recipe:
+        $ref: '#/definitions/models.Recipe'
+    type: object
+  models.ErrorBadRequest:
+    properties:
+      error_code:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.Ingredients:
+    properties:
+      count:
+        type: number
+      dimension:
+        type: string
+      guid:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Recipe:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      guid:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/recipe:
+    get:
+      consumes:
+      - application/json
+      description: Recipe List
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Recipe'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Recipe List
+      tags:
+      - aggregator
+    post:
+      consumes:
+      - application/json
+      description: Create recipe
+      parameters:
+      - description: limit
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateAggregatorRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreateAggregatorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Create recipe
+      tags:
+      - aggregator
+  /v1/recipe/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete recipe by id
+      parameters:
+      - description: recipe_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CulinaryAggregator'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Delete recipe by id
+      tags:
+      - aggregator
+    get:
+      consumes:
+      - application/json
+      description: Recipe by id
+      parameters:
+      - description: recipe_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CulinaryAggregator'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Recipe by id
+      tags:
+      - aggregator
+swagger: "2.0"
