@@ -60,6 +60,9 @@ func (i *cookingSteps) beforeCreate(m *entity.CookingSteps) {
 
 func (i *cookingSteps) BatchCreate(ctx context.Context, m []*entity.CookingSteps) error {
 	// refactor
+	if len(m) == 0 {
+		return nil
+	}
 	for _, v := range m {
 		i.beforeCreate(v)
 		if err := i.repo.Create(ctx, v); err != nil {
@@ -71,6 +74,9 @@ func (i *cookingSteps) BatchCreate(ctx context.Context, m []*entity.CookingSteps
 
 func (i *cookingSteps) BatchUpdate(ctx context.Context, m []*entity.CookingSteps) error {
 	// refactor
+	if len(m) == 0 {
+		return nil
+	}
 	for _, v := range m {
 		if err := i.repo.Update(ctx, v); err != nil {
 			return err

@@ -242,6 +242,7 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 	ingredients := make([]*entity.Ingredients, 0, len(reqBody.Ingredients))
 	for _, v := range reqBody.Ingredients {
 		ingredients = append(ingredients, &entity.Ingredients{
+			Guid:      v.Guid,
 			Name:      v.Name,
 			Dimension: v.Dimension,
 			Count:     v.Count,
@@ -251,6 +252,8 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 	steps := make([]*entity.CookingSteps, 0, len(reqBody.CookingSteps))
 	for _, v := range reqBody.CookingSteps {
 		steps = append(steps, &entity.CookingSteps{
+			Guid:        v.Guid,
+			RecipeId:    v.RecipeId,
 			OrderNumber: v.OrderNumber,
 			Description: v.Description,
 		})
@@ -258,6 +261,7 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 
 	res := &entity.CulinaryAggregator{
 		Recipe: &entity.Recipe{
+			Guid:        reqBody.Recipe.Guid,
 			Title:       reqBody.Recipe.Title,
 			Description: reqBody.Recipe.Description,
 		},
