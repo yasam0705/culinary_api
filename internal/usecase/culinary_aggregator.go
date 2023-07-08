@@ -10,6 +10,7 @@ type CulinaryAggregator interface {
 	CreateRecipe(ctx context.Context, m *entity.CulinaryAggregator) (err error)
 	GetRecipe(ctx context.Context, filter map[string]string) (*entity.CulinaryAggregator, error)
 	DeleteRecipe(ctx context.Context, filter map[string]string) (err error)
+	UpdateRecipe(ctx context.Context, m *entity.CulinaryAggregator) (err error)
 }
 
 type CulinaryAggregatorRepo interface {
@@ -149,6 +150,23 @@ func (c *culinaryAggregator) UpdateRecipe(ctx context.Context, m *entity.Culinar
 	}()
 
 	if err = c.recipe.Update(contextTx, m.Recipe); err != nil {
+		return err
+	}
+
+	recipeIngridients := make([]*entity.RecipeIngredient, 0, len(m.Ingredients))
+	for _, v := range m.Ingredients {
+		recipeIngridients = append(recipeIngridients, &entity.RecipeIngredient{
+			RecipeId:     m.Recipe.Guid,
+			IngredientId: v.Guid,
+			Count:        v.Count,
+		})
+	}
+
+	if c.recipeIngredient.BatchUpdate(ctx, recipeIngridients); err != nil {
+		return err
+	}
+
+	if err = c.cookingSteps.BatchUpdate(ctx, m.CookingSteps); err != nil {
 		return err
 	}
 

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"github/culinary_api/config"
 	http_router "github/culinary_api/internal/delivery/http"
 	"github/culinary_api/internal/repository/postgresql"
@@ -64,7 +65,8 @@ func (a *App) Run() error {
 	if err != nil {
 		return err
 	}
-	return router.Run(a.cfg.HttpPort)
+	fmt.Println(a.cfg.HttpPort)
+	return router.Run(":" + a.cfg.HttpPort)
 }
 
 func (a *App) Stop() error {

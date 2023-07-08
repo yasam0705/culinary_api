@@ -10,6 +10,17 @@ definitions:
       recipe_id:
         type: string
     type: object
+  models.CookingStepsUpdate:
+    properties:
+      description:
+        type: string
+      guid:
+        type: string
+      order_number:
+        type: integer
+      recipe_id:
+        type: string
+    type: object
   models.CreateAggregatorRequest:
     properties:
       cooking_steps:
@@ -64,6 +75,11 @@ definitions:
       recipe:
         $ref: '#/definitions/models.Recipe'
     type: object
+  models.DeleteRecipeResponse:
+    properties:
+      succress:
+        type: boolean
+    type: object
   models.ErrorBadRequest:
     properties:
       error_code:
@@ -72,6 +88,17 @@ definitions:
         type: string
     type: object
   models.Ingredients:
+    properties:
+      count:
+        type: number
+      dimension:
+        type: string
+      guid:
+        type: string
+      name:
+        type: string
+    type: object
+  models.IngredientsUpdate:
     properties:
       count:
         type: number
@@ -94,6 +121,33 @@ definitions:
         type: string
       updated_at:
         type: string
+    type: object
+  models.RecipeUpdate:
+    properties:
+      description:
+        type: string
+      guid:
+        type: string
+      title:
+        type: string
+    type: object
+  models.UpdateRecipeRequest:
+    properties:
+      cooking_steps:
+        items:
+          $ref: '#/definitions/models.CookingStepsUpdate'
+        type: array
+      ingredients:
+        items:
+          $ref: '#/definitions/models.IngredientsUpdate'
+        type: array
+      recipe:
+        $ref: '#/definitions/models.RecipeUpdate'
+    type: object
+  models.UpdateRecipeResponse:
+    properties:
+      succress:
+        type: boolean
     type: object
 info:
   contact: {}
@@ -135,7 +189,7 @@ paths:
       - application/json
       description: Create recipe
       parameters:
-      - description: limit
+      - description: data
         in: body
         name: body
         required: true
@@ -153,6 +207,31 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
       summary: Create recipe
+      tags:
+      - aggregator
+    put:
+      consumes:
+      - application/json
+      description: Update recipe
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateRecipeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateRecipeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Update recipe
       tags:
       - aggregator
   /v1/recipe/{id}:
@@ -173,7 +252,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.CulinaryAggregator'
+              $ref: '#/definitions/models.DeleteRecipeResponse'
             type: array
         "400":
           description: Bad Request

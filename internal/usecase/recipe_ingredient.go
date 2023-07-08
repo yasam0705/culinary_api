@@ -12,6 +12,7 @@ type RecipeIngredient interface {
 	List(ctx context.Context, limit, offset uint64, m map[string]string) ([]*entity.RecipeIngredient, error)
 	BatchCreate(ctx context.Context, m []*entity.RecipeIngredient) error
 	Delete(ctx context.Context, filter map[string]string) error
+	BatchUpdate(ctx context.Context, m []*entity.RecipeIngredient) error
 }
 
 type RecipeIngredientRepo interface {
@@ -49,6 +50,7 @@ func (r *recipeIngredient) Update(ctx context.Context, m *entity.RecipeIngredien
 }
 
 func (r *recipeIngredient) BatchCreate(ctx context.Context, m []*entity.RecipeIngredient) error {
+	// refactor
 	for _, v := range m {
 		if err := r.repo.Create(ctx, v); err != nil {
 			return err
@@ -59,4 +61,14 @@ func (r *recipeIngredient) BatchCreate(ctx context.Context, m []*entity.RecipeIn
 
 func (r *recipeIngredient) Delete(ctx context.Context, filter map[string]string) error {
 	return r.repo.Delete(ctx, filter)
+}
+
+func (r *recipeIngredient) BatchUpdate(ctx context.Context, m []*entity.RecipeIngredient) error {
+	// refactor
+	for _, v := range m {
+		if err := r.Update(ctx, v); err != nil {
+			return err
+		}
+	}
+	return nil
 }

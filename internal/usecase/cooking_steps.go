@@ -14,6 +14,7 @@ type CookingSteps interface {
 	List(ctx context.Context, limit, offset uint64, m map[string]string) ([]*entity.CookingSteps, error)
 	BatchCreate(ctx context.Context, m []*entity.CookingSteps) error
 	Delete(ctx context.Context, filter map[string]string) error
+	BatchUpdate(ctx context.Context, m []*entity.CookingSteps) error
 }
 
 type CookingStepsRepo interface {
@@ -58,10 +59,20 @@ func (i *cookingSteps) beforeCreate(m *entity.CookingSteps) {
 }
 
 func (i *cookingSteps) BatchCreate(ctx context.Context, m []*entity.CookingSteps) error {
+	// refactor
 	for _, v := range m {
 		i.beforeCreate(v)
-		// временно, знаю как сделать лучше в репозитории
 		if err := i.repo.Create(ctx, v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (i *cookingSteps) BatchUpdate(ctx context.Context, m []*entity.CookingSteps) error {
+	// refactor
+	for _, v := range m {
+		if err := i.repo.Update(ctx, v); err != nil {
 			return err
 		}
 	}

@@ -19,3 +19,9 @@ build-linux:
 .PHONY: swag_init
 swag_init:
 	swag init --parseDependency --dir ./internal/delivery/http/ -g router.go -o ./internal/delivery/http/docs
+
+
+.PHONY: migrate-up
+migrate-up:
+	migrate -source file://migrations -database postgresql://sam:@localhost:5432/recipe_task?sslmode=disable up
+

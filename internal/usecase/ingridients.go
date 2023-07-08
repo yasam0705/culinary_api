@@ -56,6 +56,7 @@ func (i *ingredients) beforeCreate(m *entity.Ingredients) {
 }
 
 func (i *ingredients) BatchCreate(ctx context.Context, m []*entity.Ingredients) error {
+	// refactor
 	for _, v := range m {
 		i.beforeCreate(v)
 		if err := i.repo.Create(ctx, v); err != nil {

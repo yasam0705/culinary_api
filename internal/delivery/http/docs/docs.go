@@ -63,6 +63,44 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "Update recipe",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aggregator"
+                ],
+                "summary": "Update recipe",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateRecipeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateRecipeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create recipe",
                 "consumes": [
@@ -77,7 +115,7 @@ const docTemplate = `{
                 "summary": "Create recipe",
                 "parameters": [
                     {
-                        "description": "limit",
+                        "description": "data",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -169,7 +207,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.CulinaryAggregator"
+                                "$ref": "#/definitions/models.DeleteRecipeResponse"
                             }
                         }
                     },
@@ -185,6 +223,23 @@ const docTemplate = `{
     },
     "definitions": {
         "models.CookingSteps": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "guid": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "integer"
+                },
+                "recipe_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CookingStepsUpdate": {
             "type": "object",
             "properties": {
                 "description": {
@@ -285,6 +340,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DeleteRecipeResponse": {
+            "type": "object",
+            "properties": {
+                "succress": {
+                    "type": "boolean"
+                }
+            }
+        },
         "models.ErrorBadRequest": {
             "type": "object",
             "properties": {
@@ -297,6 +360,23 @@ const docTemplate = `{
             }
         },
         "models.Ingredients": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "number"
+                },
+                "dimension": {
+                    "type": "string"
+                },
+                "guid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.IngredientsUpdate": {
             "type": "object",
             "properties": {
                 "count": {
@@ -330,6 +410,48 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.RecipeUpdate": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "guid": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateRecipeRequest": {
+            "type": "object",
+            "properties": {
+                "cooking_steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CookingStepsUpdate"
+                    }
+                },
+                "ingredients": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.IngredientsUpdate"
+                    }
+                },
+                "recipe": {
+                    "$ref": "#/definitions/models.RecipeUpdate"
+                }
+            }
+        },
+        "models.UpdateRecipeResponse": {
+            "type": "object",
+            "properties": {
+                "succress": {
+                    "type": "boolean"
                 }
             }
         }

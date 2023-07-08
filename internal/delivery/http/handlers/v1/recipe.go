@@ -127,7 +127,7 @@ func (r *recipeHandlers) Recipe(c *gin.Context) {
 // @Tags aggregator
 // @Accept json
 // @Produce json
-// @Param body body models.CreateAggregatorRequest true "limit"
+// @Param body body models.CreateAggregatorRequest true "data"
 // @Success 200 {object} models.CreateAggregatorResponse
 // @Failure 400 {object} models.ErrorBadRequest
 func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
@@ -138,7 +138,7 @@ func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
 		c.JSON(errors_pkg.Error(err))
 		return
 	}
-	m := r.convertToEntity(reqBody)
+	m := r.convertToEntityCreate(reqBody)
 
 	if err := r.culinaryAggregator.CreateRecipe(ctx, m); err != nil {
 		c.JSON(errors_pkg.Error(err))
@@ -151,8 +151,35 @@ func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
 
 }
 
+// @Router /v1/recipe [PUT]
+// @Summary Update recipe
+// @Description Update recipe
+// @Tags aggregator
+// @Accept json
+// @Produce json
+// @Param body body models.UpdateRecipeRequest true "data"
+// @Success 200 {object} models.UpdateRecipeResponse
+// @Failure 400 {object} models.ErrorBadRequest
 func (r *recipeHandlers) UpdateRecipe(c *gin.Context) {
-	// ctx := c.Request.Context()
+	ctx := c.Request.Context()
+
+	reqBody := &models.UpdateRecipeRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(errors_pkg.Error(err))
+		return
+	}
+
+	m := r.convertToEntityUpdate(reqBody)
+
+	if err := r.culinaryAggregator.UpdateRecipe(ctx, m); err != nil {
+		c.JSON(errors_pkg.Error(err))
+		return
+	}
+
+	c.JSON(200, &models.UpdateRecipeResponse{
+		Success: true,
+	})
 
 }
 
@@ -163,7 +190,7 @@ func (r *recipeHandlers) UpdateRecipe(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "recipe_id"
-// @Success 200 {array} models.CulinaryAggregator
+// @Success 200 {array} models.DeleteRecipeResponse
 // @Failure 400 {object} models.ErrorBadRequest
 func (r *recipeHandlers) DeleteRecipe(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -176,12 +203,42 @@ func (r *recipeHandlers) DeleteRecipe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, map[string]bool{
-		"success": true,
+	c.JSON(200, &models.DeleteRecipeResponse{
+		Success: true,
 	})
 }
 
-func (r *recipeHandlers) convertToEntity(reqBody *models.CreateAggregatorRequest) *entity.CulinaryAggregator {
+func (r *recipeHandlers) convertToEntityCreate(reqBody *models.CreateAggregatorRequest) *entity.CulinaryAggregator {
+	ingredients := make([]*entity.Ingredients, 0, len(reqBody.Ingredients))
+	for _, v := range reqBody.Ingredients {
+		ingredients = append(ingredients, &entity.Ingredients{
+			Name:      v.Name,
+			Dimension: v.Dimension,
+			Count:     v.Count,
+		})
+	}
+
+	steps := make([]*entity.CookingSteps, 0, len(reqBody.CookingSteps))
+	for _, v := range reqBody.CookingSteps {
+		steps = append(steps, &entity.CookingSteps{
+			OrderNumber: v.OrderNumber,
+			Description: v.Description,
+		})
+	}
+
+	res := &entity.CulinaryAggregator{
+		Recipe: &entity.Recipe{
+			Title:       reqBody.Recipe.Title,
+			Description: reqBody.Recipe.Description,
+		},
+		Ingredients:  ingredients,
+		CookingSteps: steps,
+	}
+
+	return res
+}
+
+func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeRequest) *entity.CulinaryAggregator {
 	ingredients := make([]*entity.Ingredients, 0, len(reqBody.Ingredients))
 	for _, v := range reqBody.Ingredients {
 		ingredients = append(ingredients, &entity.Ingredients{
