@@ -2,7 +2,7 @@ package handlers
 
 import (
 	errors_pkg "github/culinary_api/internal/delivery/http/errors"
-	"github/culinary_api/internal/delivery/http/handlers/pkg"
+	"github/culinary_api/internal/delivery/http/helper"
 	"github/culinary_api/internal/delivery/http/models"
 
 	"github/culinary_api/internal/entity"
@@ -38,14 +38,17 @@ func NewRecipeHandlers(e *gin.RouterGroup, recipeUsecase usecase.Recipe, culinar
 // @Tags aggregator
 // @Accept json
 // @Produce json
-// @Param limit query int true "limit"
-// @Param offset query int true "offset"
+// @Param limit query int false "limit"
+// @Param offset query int false "offset"
+// @Param cooking_time_from query string false "cooking_time_from"
+// @Param cooking_time_to query string false "cooking_time_to"
+// @Param ingridients query string false "guid,guid"
 // @Success 200 {array} models.Recipe
 // @Failure 400 {object} models.ErrorBadRequest
 func (r *recipeHandlers) RecipeList(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	params, err := pkg.GetQueryParams(c)
+	params, err := helper.GetQueryParams(c)
 	if err != nil {
 		c.JSON(errors_pkg.Error(err))
 		return
@@ -63,8 +66,9 @@ func (r *recipeHandlers) RecipeList(c *gin.Context) {
 			Guid:        v.Guid,
 			Title:       v.Title,
 			Description: v.Description,
-			CreatedAt:   pkg.TimeToStrRFC3339(v.CreatedAt),
-			UpdatedAt:   pkg.TimeToStrRFC3339(v.UpdatedAt),
+			CreatedAt:   helper.TimeToStrRFC3339(v.CreatedAt),
+			UpdatedAt:   helper.TimeToStrRFC3339(v.UpdatedAt),
+			CookingTime: v.CookingTime,
 		})
 	}
 	c.JSON(200, response)
@@ -106,6 +110,7 @@ func (r *recipeHandlers) Recipe(c *gin.Context) {
 			RecipeId:    v.RecipeId,
 			OrderNumber: v.OrderNumber,
 			Description: v.Description,
+			CookingTime: v.CookingTime,
 		})
 	}
 	c.JSON(200, &models.CulinaryAggregator{
@@ -113,8 +118,9 @@ func (r *recipeHandlers) Recipe(c *gin.Context) {
 			Guid:        result.Recipe.Guid,
 			Title:       result.Recipe.Title,
 			Description: result.Recipe.Description,
-			CreatedAt:   pkg.TimeToStrRFC3339(result.Recipe.CreatedAt),
-			UpdatedAt:   pkg.TimeToStrRFC3339(result.Recipe.UpdatedAt),
+			CreatedAt:   helper.TimeToStrRFC3339(result.Recipe.CreatedAt),
+			UpdatedAt:   helper.TimeToStrRFC3339(result.Recipe.UpdatedAt),
+			CookingTime: result.Recipe.CookingTime,
 		},
 		Ingredients:  ingredients,
 		CookingSteps: steps,
@@ -148,7 +154,6 @@ func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
 	c.JSON(200, models.CreateAggregatorResponse{
 		Guid: m.Recipe.Guid,
 	})
-
 }
 
 // @Router /v1/recipe [PUT]
@@ -162,14 +167,12 @@ func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
 // @Failure 400 {object} models.ErrorBadRequest
 func (r *recipeHandlers) UpdateRecipe(c *gin.Context) {
 	ctx := c.Request.Context()
-
 	reqBody := &models.UpdateRecipeRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(errors_pkg.Error(err))
 		return
 	}
-
 	m := r.convertToEntityUpdate(reqBody)
 
 	if err := r.culinaryAggregator.UpdateRecipe(ctx, m); err != nil {
@@ -180,7 +183,6 @@ func (r *recipeHandlers) UpdateRecipe(c *gin.Context) {
 	c.JSON(200, &models.UpdateRecipeResponse{
 		Success: true,
 	})
-
 }
 
 // @Router /v1/recipe/{id} [DELETE]
@@ -218,11 +220,14 @@ func (r *recipeHandlers) convertToEntityCreate(reqBody *models.CreateAggregatorR
 		})
 	}
 
+	var allCookingTime float32
 	steps := make([]*entity.CookingSteps, 0, len(reqBody.CookingSteps))
 	for _, v := range reqBody.CookingSteps {
+		allCookingTime += v.CookingTime
 		steps = append(steps, &entity.CookingSteps{
 			OrderNumber: v.OrderNumber,
 			Description: v.Description,
+			CookingTime: v.CookingTime,
 		})
 	}
 
@@ -230,6 +235,7 @@ func (r *recipeHandlers) convertToEntityCreate(reqBody *models.CreateAggregatorR
 		Recipe: &entity.Recipe{
 			Title:       reqBody.Recipe.Title,
 			Description: reqBody.Recipe.Description,
+			CookingTime: allCookingTime,
 		},
 		Ingredients:  ingredients,
 		CookingSteps: steps,
@@ -249,13 +255,16 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 		})
 	}
 
+	var allCookingTime float32
 	steps := make([]*entity.CookingSteps, 0, len(reqBody.CookingSteps))
 	for _, v := range reqBody.CookingSteps {
+		allCookingTime += v.CookingTime
 		steps = append(steps, &entity.CookingSteps{
 			Guid:        v.Guid,
 			RecipeId:    v.RecipeId,
 			OrderNumber: v.OrderNumber,
 			Description: v.Description,
+			CookingTime: v.CookingTime,
 		})
 	}
 
@@ -264,6 +273,7 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 			Guid:        reqBody.Recipe.Guid,
 			Title:       reqBody.Recipe.Title,
 			Description: reqBody.Recipe.Description,
+			CookingTime: allCookingTime,
 		},
 		Ingredients:  ingredients,
 		CookingSteps: steps,

@@ -16,6 +16,125 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/cooking-step": {
+            "put": {
+                "description": "Update cooking step",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cooking-step"
+                ],
+                "summary": "Update cooking step",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateStepRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateStepResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create cooking step",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cooking-step"
+                ],
+                "summary": "Create cooking step",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateStepRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateStepResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/cooking-step/{id}": {
+            "delete": {
+                "description": "Delete cooking step by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cooking-step"
+                ],
+                "summary": "Delete cooking step by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DeleteStepResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/recipe": {
             "get": {
                 "description": "Recipe List",
@@ -34,15 +153,31 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "limit",
                         "name": "limit",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "offset",
                         "name": "offset",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "cooking_time_from",
+                        "name": "cooking_time_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "cooking_time_to",
+                        "name": "cooking_time_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "guid,guid",
+                        "name": "ingridients",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -140,6 +275,174 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/recipe-ingridient": {
+            "get": {
+                "description": "ingridient list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recipe-ingridient"
+                ],
+                "summary": "ingridient list",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Ingridient"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update ingridient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recipe-ingridient"
+                ],
+                "summary": "Update ingridient",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateIngredientRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UpdateIngredientResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create ingridient",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recipe-ingridient"
+                ],
+                "summary": "Create ingridient",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateIngredientRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.CreateIngredientResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete ingridient by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "recipe-ingridient"
+                ],
+                "summary": "Delete ingridient by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "recipe_id",
+                        "name": "recipe_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ingredient_id",
+                        "name": "ingredient_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DeleteIngredientResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/recipe/{id}": {
             "get": {
                 "description": "Recipe by id",
@@ -225,6 +528,9 @@ const docTemplate = `{
         "models.CookingSteps": {
             "type": "object",
             "properties": {
+                "cooking_time": {
+                    "type": "number"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -242,6 +548,9 @@ const docTemplate = `{
         "models.CookingStepsUpdate": {
             "type": "object",
             "properties": {
+                "cooking_time": {
+                    "type": "number"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -287,11 +596,39 @@ const docTemplate = `{
         "models.CreateCookingStepsRequest": {
             "type": "object",
             "properties": {
+                "cooking_time": {
+                    "type": "number"
+                },
                 "description": {
                     "type": "string"
                 },
                 "order_number": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.CreateIngredientRequest": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "number"
+                },
+                "dimension": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recipe_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateIngredientResponse": {
+            "type": "object",
+            "properties": {
+                "guid": {
+                    "type": "string"
                 }
             }
         },
@@ -320,6 +657,31 @@ const docTemplate = `{
                 }
             }
         },
+        "models.CreateStepRequest": {
+            "type": "object",
+            "properties": {
+                "cooking_time": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "integer"
+                },
+                "recipe_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CreateStepResponse": {
+            "type": "object",
+            "properties": {
+                "guid": {
+                    "type": "string"
+                }
+            }
+        },
         "models.CulinaryAggregator": {
             "type": "object",
             "properties": {
@@ -340,10 +702,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.DeleteIngredientResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "models.DeleteRecipeResponse": {
             "type": "object",
             "properties": {
                 "succress": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.DeleteStepResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
                     "type": "boolean"
                 }
             }
@@ -393,9 +771,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Ingridient": {
+            "type": "object",
+            "properties": {
+                "dimension": {
+                    "type": "string"
+                },
+                "guid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.Recipe": {
             "type": "object",
             "properties": {
+                "cooking_time": {
+                    "type": "number"
+                },
                 "created_at": {
                     "type": "string"
                 },
@@ -427,6 +822,34 @@ const docTemplate = `{
                 }
             }
         },
+        "models.UpdateIngredientRequest": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "number"
+                },
+                "dimension": {
+                    "type": "string"
+                },
+                "guid": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "recipe_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateIngredientResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "models.UpdateRecipeRequest": {
             "type": "object",
             "properties": {
@@ -451,6 +874,34 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "succress": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.UpdateStepRequest": {
+            "type": "object",
+            "properties": {
+                "cooking_time": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "guid": {
+                    "type": "string"
+                },
+                "order_number": {
+                    "type": "integer"
+                },
+                "recipe_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UpdateStepResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
                     "type": "boolean"
                 }
             }

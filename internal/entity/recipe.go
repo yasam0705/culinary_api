@@ -10,4 +10,5 @@ type Recipe struct {
 	Description string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+	CookingTime float32
 }

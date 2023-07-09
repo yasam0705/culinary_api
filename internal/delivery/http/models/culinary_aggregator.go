@@ -7,11 +7,12 @@ type CulinaryAggregator struct {
 }
 
 type Recipe struct {
-	Guid        string `json:"guid"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
+	Guid        string  `json:"guid"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	CreatedAt   string  `json:"created_at"`
+	UpdatedAt   string  `json:"updated_at"`
+	CookingTime float32 `json:"cooking_time"`
 }
 
 type Ingredients struct {
@@ -22,8 +23,9 @@ type Ingredients struct {
 }
 
 type CookingSteps struct {
-	Guid        string `json:"guid"`
-	RecipeId    string `json:"recipe_id"`
-	OrderNumber int    `json:"order_number"`
-	Description string `json:"description"`
+	Guid        string  `json:"guid"`
+	RecipeId    string  `json:"recipe_id"`
+	OrderNumber int     `json:"order_number"`
+	Description string  `json:"description"`
+	CookingTime float32 `json:"cooking_time"`
 }

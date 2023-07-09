@@ -5,4 +5,5 @@ type CookingSteps struct {
 	RecipeId    string
 	OrderNumber int
 	Description string
+	CookingTime float32
 }

@@ -25,3 +25,19 @@ swag_init:
 migrate-up:
 	migrate -source file://migrations -database postgresql://sam:@localhost:5432/recipe_task?sslmode=disable up
 
+
+.PHONY: migrate-down
+migrate-down:
+	migrate -source file://migrations -database postgresql://sam:@localhost:5432/recipe_task?sslmode=disable down
+
+.PHONY: start
+start:
+	docker-compose up -d
+
+.PHONY: build-start
+build-start:
+	docker-compose build && docker-compose up -d
+
+.PHONY: stop
+stop:
+	docker-compose down

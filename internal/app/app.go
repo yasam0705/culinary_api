@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"github/culinary_api/config"
 	http_router "github/culinary_api/internal/delivery/http"
 	"github/culinary_api/internal/repository/postgresql"
@@ -59,13 +58,12 @@ func (a *App) Run() error {
 		culinaryAggregatorUseCase,
 	)
 
-	// return nil
 	// http init
 	router, err := http_router.NewRouter(a.log, services)
 	if err != nil {
 		return err
 	}
-	fmt.Println(a.cfg.HttpPort)
+
 	return router.Run(":" + a.cfg.HttpPort)
 }
 

@@ -1,6 +1,8 @@
 definitions:
   models.CookingSteps:
     properties:
+      cooking_time:
+        type: number
       description:
         type: string
       guid:
@@ -12,6 +14,8 @@ definitions:
     type: object
   models.CookingStepsUpdate:
     properties:
+      cooking_time:
+        type: number
       description:
         type: string
       guid:
@@ -41,10 +45,28 @@ definitions:
     type: object
   models.CreateCookingStepsRequest:
     properties:
+      cooking_time:
+        type: number
       description:
         type: string
       order_number:
         type: integer
+    type: object
+  models.CreateIngredientRequest:
+    properties:
+      count:
+        type: number
+      dimension:
+        type: string
+      name:
+        type: string
+      recipe_id:
+        type: string
+    type: object
+  models.CreateIngredientResponse:
+    properties:
+      guid:
+        type: string
     type: object
   models.CreateIngredientsRequest:
     properties:
@@ -62,6 +84,22 @@ definitions:
       title:
         type: string
     type: object
+  models.CreateStepRequest:
+    properties:
+      cooking_time:
+        type: number
+      description:
+        type: string
+      order_number:
+        type: integer
+      recipe_id:
+        type: string
+    type: object
+  models.CreateStepResponse:
+    properties:
+      guid:
+        type: string
+    type: object
   models.CulinaryAggregator:
     properties:
       cooking_steps:
@@ -75,9 +113,19 @@ definitions:
       recipe:
         $ref: '#/definitions/models.Recipe'
     type: object
+  models.DeleteIngredientResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   models.DeleteRecipeResponse:
     properties:
       succress:
+        type: boolean
+    type: object
+  models.DeleteStepResponse:
+    properties:
+      success:
         type: boolean
     type: object
   models.ErrorBadRequest:
@@ -109,8 +157,19 @@ definitions:
       name:
         type: string
     type: object
+  models.Ingridient:
+    properties:
+      dimension:
+        type: string
+      guid:
+        type: string
+      name:
+        type: string
+    type: object
   models.Recipe:
     properties:
+      cooking_time:
+        type: number
       created_at:
         type: string
       description:
@@ -131,6 +190,24 @@ definitions:
       title:
         type: string
     type: object
+  models.UpdateIngredientRequest:
+    properties:
+      count:
+        type: number
+      dimension:
+        type: string
+      guid:
+        type: string
+      name:
+        type: string
+      recipe_id:
+        type: string
+    type: object
+  models.UpdateIngredientResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
   models.UpdateRecipeRequest:
     properties:
       cooking_steps:
@@ -149,9 +226,105 @@ definitions:
       succress:
         type: boolean
     type: object
+  models.UpdateStepRequest:
+    properties:
+      cooking_time:
+        type: number
+      description:
+        type: string
+      guid:
+        type: string
+      order_number:
+        type: integer
+      recipe_id:
+        type: string
+    type: object
+  models.UpdateStepResponse:
+    properties:
+      success:
+        type: boolean
+    type: object
 info:
   contact: {}
 paths:
+  /v1/cooking-step:
+    post:
+      consumes:
+      - application/json
+      description: Create cooking step
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateStepRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreateStepResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Create cooking step
+      tags:
+      - cooking-step
+    put:
+      consumes:
+      - application/json
+      description: Update cooking step
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateStepRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateStepResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Update cooking step
+      tags:
+      - cooking-step
+  /v1/cooking-step/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete cooking step by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DeleteStepResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Delete cooking step by id
+      tags:
+      - cooking-step
   /v1/recipe:
     get:
       consumes:
@@ -161,13 +334,23 @@ paths:
       - description: limit
         in: query
         name: limit
-        required: true
         type: integer
       - description: offset
         in: query
         name: offset
-        required: true
         type: integer
+      - description: cooking_time_from
+        in: query
+        name: cooking_time_from
+        type: string
+      - description: cooking_time_to
+        in: query
+        name: cooking_time_to
+        type: string
+      - description: guid,guid
+        in: query
+        name: ingridients
+        type: string
       produces:
       - application/json
       responses:
@@ -234,6 +417,117 @@ paths:
       summary: Update recipe
       tags:
       - aggregator
+  /v1/recipe-ingridient:
+    delete:
+      consumes:
+      - application/json
+      description: Delete ingridient by id
+      parameters:
+      - description: recipe_id
+        in: query
+        name: recipe_id
+        required: true
+        type: string
+      - description: ingredient_id
+        in: query
+        name: ingredient_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DeleteIngredientResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Delete ingridient by id
+      tags:
+      - recipe-ingridient
+    get:
+      consumes:
+      - application/json
+      description: ingridient list
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Ingridient'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: ingridient list
+      tags:
+      - recipe-ingridient
+    post:
+      consumes:
+      - application/json
+      description: Create ingridient
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateIngredientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.CreateIngredientResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Create ingridient
+      tags:
+      - recipe-ingridient
+    put:
+      consumes:
+      - application/json
+      description: Update ingridient
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateIngredientRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UpdateIngredientResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      summary: Update ingridient
+      tags:
+      - recipe-ingridient
   /v1/recipe/{id}:
     delete:
       consumes:

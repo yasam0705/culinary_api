@@ -5,23 +5,21 @@ import (
 	"fmt"
 	"github/culinary_api/internal/entity"
 	"github/culinary_api/pkg/postgres"
-	"strings"
 )
 
-type recipe struct {
-	db                                    *postgres.DB
-	tableName, tableNameRecipeIngredients string
+type users struct {
+	db        *postgres.DB
+	tableName string
 }
 
-func NewRecipeRepo(db *postgres.DB) *recipe {
-	return &recipe{
-		db:                         db,
-		tableName:                  "recipe",
-		tableNameRecipeIngredients: "recipe_ingredients",
+func NewUsersRepo(db *postgres.DB) *users {
+	return &users{
+		db:        db,
+		tableName: "users",
 	}
 }
 
-func (r *recipe) Create(ctx context.Context, m *entity.Recipe) error {
+func (r *users) Create(ctx context.Context, m *entity.User) error {
 	query := r.db.Builder.
 		Insert(r.tableName).
 		SetMap(r.getMap("create", m))
@@ -38,7 +36,7 @@ func (r *recipe) Create(ctx context.Context, m *entity.Recipe) error {
 	return nil
 }
 
-func (r *recipe) Update(ctx context.Context, m *entity.Recipe) error {
+func (r *users) Update(ctx context.Context, m *entity.User) error {
 	query := r.db.Builder.
 		Update(r.tableName).
 		SetMap(r.getMap("update", m)).
@@ -56,14 +54,13 @@ func (r *recipe) Update(ctx context.Context, m *entity.Recipe) error {
 	return nil
 }
 
-func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Recipe, error) {
+func (r *users) FindOne(ctx context.Context, m map[string]string) (*entity.User, error) {
 	query := r.db.Builder.Select(
 		"guid",
-		"title",
-		"description",
+		"username",
+		"password",
 		"created_at",
 		"updated_at",
-		"cooking_time",
 	).From(r.tableName)
 
 	for k, v := range m {
@@ -78,14 +75,13 @@ func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Reci
 		return nil, err
 	}
 
-	result := &entity.Recipe{}
+	result := &entity.User{}
 	err = r.db.QueryRow(ctx, sql, args...).Scan(
 		&result.Guid,
-		&result.Title,
-		&result.Description,
+		&result.Username,
+		&result.Password,
 		&result.CreatedAt,
 		&result.UpdatedAt,
-		&result.CookingTime,
 	)
 	if err != nil {
 		return nil, err
@@ -94,38 +90,19 @@ func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Reci
 	return result, nil
 }
 
-func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string]string) ([]*entity.Recipe, error) {
+func (r *users) FindAll(ctx context.Context, limit, offset uint64, m map[string]string) ([]*entity.User, error) {
 	query := r.db.Builder.Select(
 		"guid",
-		"title",
-		"description",
+		"username",
+		"password",
 		"created_at",
 		"updated_at",
-		"cooking_time",
 	).From(r.tableName)
 
 	for k, v := range m {
 		switch k {
 		case "guid":
 			query = query.Where(r.db.Builder.Equal(k, v))
-		case "cooking_time_from":
-			query = query.Where(r.db.Builder.GtOrEqual("cooking_time", v))
-		case "cooking_time_to":
-			query = query.Where(r.db.Builder.Lt("cooking_time", v))
-		case "ingridients":
-			arr := strings.Split(v, ",")
-			subQuery := r.db.Builder.
-				Select("recipe_id").
-				From(r.tableNameRecipeIngredients).
-				Where(r.db.Builder.Equal("ingredient_id", arr)).
-				GroupBy("recipe_id").
-				Having(r.db.Builder.Equal("count(ingredient_id)", len(arr)))
-
-			subSql, subArgs, err := subQuery.ToSql()
-			if err != nil {
-				return nil, err
-			}
-			query = query.Where("guid IN ("+subSql+")", subArgs...)
 		}
 	}
 
@@ -144,16 +121,15 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 	}
 	defer rows.Close()
 
-	result := []*entity.Recipe{}
+	result := []*entity.User{}
 	for rows.Next() {
-		temp := &entity.Recipe{}
+		temp := &entity.User{}
 		err = rows.Scan(
 			&temp.Guid,
-			&temp.Title,
-			&temp.Description,
+			&temp.Username,
+			&temp.Password,
 			&temp.CreatedAt,
 			&temp.UpdatedAt,
-			&temp.CookingTime,
 		)
 		if err != nil {
 			return nil, err
@@ -164,28 +140,27 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 	return result, nil
 }
 
-func (r *recipe) getMap(t string, m *entity.Recipe) map[string]interface{} {
+func (r *users) getMap(t string, m *entity.User) map[string]interface{} {
 	result := map[string]interface{}{
-		"title":        m.Title,
-		"description":  m.Description,
-		"updated_at":   m.UpdatedAt,
-		"cooking_time": m.CookingTime,
+		"password":   m.Password,
+		"updated_at": m.UpdatedAt,
 	}
 	if t == "create" {
 		result["guid"] = m.Guid
+		result["username"] = m.Username
 		result["created_at"] = m.CreatedAt
 
 	}
 	return result
 }
 
-func (r *recipe) Delete(ctx context.Context, filter map[string]string) error {
+func (r *users) Delete(ctx context.Context, filter map[string]string) error {
 	query := r.db.Builder.Delete(r.tableName)
 
 	var filterExist bool
 	for k, v := range filter {
 		switch k {
-		case "guid", "recipe_id":
+		case "guid":
 			query = query.Where(r.db.Builder.Equal("guid", v))
 			filterExist = true
 		}

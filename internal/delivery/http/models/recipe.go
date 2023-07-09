@@ -18,8 +18,9 @@ type CreateIngredientsRequest struct {
 }
 
 type CreateCookingStepsRequest struct {
-	OrderNumber int    `json:"order_number"`
-	Description string `json:"description"`
+	OrderNumber int     `json:"order_number"`
+	Description string  `json:"description"`
+	CookingTime float32 `json:"cooking_time"`
 }
 
 type CreateAggregatorResponse struct {
@@ -44,10 +45,11 @@ type IngredientsUpdate struct {
 }
 
 type CookingStepsUpdate struct {
-	Guid        string `json:"guid"`
-	RecipeId    string `json:"recipe_id"`
-	OrderNumber int    `json:"order_number"`
-	Description string `json:"description"`
+	Guid        string  `json:"guid"`
+	RecipeId    string  `json:"recipe_id"`
+	OrderNumber int     `json:"order_number"`
+	Description string  `json:"description"`
+	CookingTime float32 `json:"cooking_time"`
 }
 
 type UpdateRecipeRequest struct {
