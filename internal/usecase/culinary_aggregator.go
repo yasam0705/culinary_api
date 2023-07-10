@@ -2,7 +2,10 @@ package usecase
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github/culinary_api/internal/entity"
+	math_pkg "github/culinary_api/pkg/math"
 	"log"
 )
 
@@ -21,6 +24,9 @@ type CulinaryAggregator interface {
 	CreateCookingStep(ctx context.Context, m *entity.CookingSteps) (err error)
 	UpdateCookingStep(ctx context.Context, m *entity.CookingSteps) (err error)
 	DeleteCookingStep(ctx context.Context, id string) (err error)
+
+	// rating
+	AddRating(ctx context.Context, userId, recipeId string, rating int8) (err error)
 }
 
 type CulinaryAggregatorRepo interface {
@@ -34,6 +40,7 @@ type culinaryAggregator struct {
 	cookingSteps     CookingSteps
 	ingredients      Ingredients
 	recipeIngredient RecipeIngredient
+	userRatings      UserRatings
 }
 
 func NewCulinaryAggregator(
@@ -43,6 +50,7 @@ func NewCulinaryAggregator(
 	cookingSteps CookingSteps,
 	ingredients Ingredients,
 	recipeIngredient RecipeIngredient,
+	userRatings UserRatings,
 ) *culinaryAggregator {
 	return &culinaryAggregator{
 		base:             base,
@@ -51,6 +59,7 @@ func NewCulinaryAggregator(
 		cookingSteps:     cookingSteps,
 		ingredients:      ingredients,
 		recipeIngredient: recipeIngredient,
+		userRatings:      userRatings,
 	}
 }
 
@@ -351,6 +360,57 @@ func (c *culinaryAggregator) DeleteCookingStep(ctx context.Context, id string) (
 	}
 
 	if err = c.cookingSteps.Delete(contextTx, filter); err != nil {
+		return err
+	}
+
+	return c.commit(contextTx)
+}
+
+// RATING
+func (c *culinaryAggregator) AddRating(ctx context.Context, userId, recipeId string, rating int8) (err error) {
+	// TRANSACTION
+	contextTx, err := c.base.beginTx(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+		}
+	}()
+
+	userRating, err := c.userRatings.Get(contextTx, map[string]string{
+		"user_id": userId,
+	})
+	if err != nil && !errors.Is(err, entity.ErrorNotFound) {
+		return err
+	}
+	if userRating != nil {
+		return fmt.Errorf("user has already voted")
+	}
+
+	userRating = &entity.UserRating{
+		UserID:   userId,
+		RecipeID: recipeId,
+		Rating:   int8(rating),
+	}
+
+	if err = c.userRatings.Create(contextTx, userRating); err != nil {
+		return err
+	}
+
+	recipe, err := c.recipe.Get(contextTx, map[string]string{
+		"recipe_id": recipeId,
+	})
+	if err != nil {
+		return err
+	}
+
+	recipe.Rating += int64(rating)
+	recipe.NumberOfRatings += 1
+	recipe.OverallRating = math_pkg.MathRound(float64(recipe.Rating) / float64(recipe.NumberOfRatings))
+
+	if err = c.recipe.Update(contextTx, recipe); err != nil {
 		return err
 	}
 

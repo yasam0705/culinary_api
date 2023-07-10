@@ -46,13 +46,13 @@ func (r *ingridientHandlers) IngredientList(c *gin.Context) {
 
 	params, err := helper.GetQueryParams(c)
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
 	list, err := r.ingredientsUseCase.List(ctx, params.GetLimit(), params.GetOffset(), params.GetFilter())
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (r *ingridientHandlers) CreateIngredient(c *gin.Context) {
 	reqBody := &models.CreateIngredientRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 	i := &entity.Ingredients{
@@ -92,7 +92,7 @@ func (r *ingridientHandlers) CreateIngredient(c *gin.Context) {
 	}
 
 	if err := r.culinaryAggregator.CreateIngredient(ctx, reqBody.RecipeId, i); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -116,7 +116,7 @@ func (r *ingridientHandlers) UpdateIngredient(c *gin.Context) {
 	reqBody := &models.UpdateIngredientRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -128,7 +128,7 @@ func (r *ingridientHandlers) UpdateIngredient(c *gin.Context) {
 	}
 
 	if err := r.culinaryAggregator.UpdateIngredient(ctx, reqBody.RecipeId, i); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -152,13 +152,13 @@ func (r *ingridientHandlers) DeleteIngredient(c *gin.Context) {
 	ctx := c.Request.Context()
 	params, err := helper.GetQueryParams(c)
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
 	err = r.culinaryAggregator.DeleteRecipe(ctx, params.GetFilter())
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 

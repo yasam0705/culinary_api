@@ -42,6 +42,7 @@ func (a *App) Run() error {
 	recipeIngredientRepo := postgresql.NewRecipeIngredientRepo(a.db)
 	culinaryAggregatorRepo := postgresql.NewCulinaryAggregatorRepo(a.db)
 	userRepo := postgresql.NewUsersRepo(a.db)
+	userRatingsRepo := postgresql.NewUserRatingsRepo(a.db)
 
 	// usecase init
 	baseUseCase := usecase.NewBase(baseRepo)
@@ -50,7 +51,8 @@ func (a *App) Run() error {
 	cookingStepsUseCase := usecase.NewCookingSteps(cookingStepsRepo)
 	recipeIngredientUseCase := usecase.NewRecipeIngredient(recipeIngredientRepo)
 	userUseCase := usecase.NewUser(userRepo)
-	culinaryAggregatorUseCase := usecase.NewCulinaryAggregator(baseUseCase, culinaryAggregatorRepo, recipeUseCase, cookingStepsUseCase, ingredientsUseCase, recipeIngredientUseCase)
+	userRatingsUseCase := usecase.NewUserRatings(userRatingsRepo)
+	culinaryAggregatorUseCase := usecase.NewCulinaryAggregator(baseUseCase, culinaryAggregatorRepo, recipeUseCase, cookingStepsUseCase, ingredientsUseCase, recipeIngredientUseCase, userRatingsUseCase)
 	authUseCase := usecase.NewAuth(userUseCase)
 
 	services := http_router.CreateServices(

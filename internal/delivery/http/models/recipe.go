@@ -61,3 +61,12 @@ type UpdateRecipeRequest struct {
 type UpdateRecipeResponse struct {
 	Success bool `json:"succress"`
 }
+
+type RecipeRatingRequest struct {
+	Rating   int8   `json:"rating"`
+	RecipeId string `json:"recipe_id"`
+}
+
+type RecipeRatingResponse struct {
+	Success bool `json:"succress"`
+}

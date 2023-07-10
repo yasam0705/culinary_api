@@ -25,9 +25,9 @@ func CreateToken(guid, secret string, duration time.Duration, m map[string]strin
 	return token.SignedString([]byte(secret))
 }
 
-func VerifyToken(secret, tokenStr string) error {
-	if len(tokenStr) > 8 && tokenStr[:7] != "Bearer " {
-		return fmt.Errorf("invalid token")
+func VerifyToken(secret, tokenStr string) (string, error) {
+	if !(len(tokenStr) > 8 && tokenStr[:7] == "Bearer ") {
+		return "", fmt.Errorf("invalid token")
 	}
 
 	token, err := jwt.Parse(tokenStr[7:], func(token *jwt.Token) (interface{}, error) {
@@ -38,29 +38,29 @@ func VerifyToken(secret, tokenStr string) error {
 		return []byte(secret), nil
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	timeNow := time.Now()
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !(ok && token.Valid) {
-		return fmt.Errorf("error parse claims")
+		return "", fmt.Errorf("error parse claims")
 	}
 
 	expDate, err := claims.GetExpirationTime()
 	if err != nil {
-		return err
+		return "", err
 	}
 	if expDate.Unix() < timeNow.Unix() {
-		return fmt.Errorf("token expired")
+		return "", fmt.Errorf("token expired")
 	}
 
 	iatDate, err := claims.GetIssuedAt()
 	if err != nil {
-		return err
+		return "", err
 	}
 	if expDate.Unix() < iatDate.Unix() {
-		return fmt.Errorf("token is invalid")
+		return "", fmt.Errorf("token is invalid")
 	}
-	return nil
+	return claims["iss"].(string), nil
 }

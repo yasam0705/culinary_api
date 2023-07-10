@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	errors_pkg "github/culinary_api/internal/delivery/http/errors"
 	"github/culinary_api/internal/delivery/http/helper"
 	"github/culinary_api/internal/delivery/http/models"
@@ -29,6 +30,7 @@ func NewRecipeHandlers(e *gin.RouterGroup, recipeUsecase usecase.Recipe, culinar
 		recipe.POST("/", h.CreateRecipe)
 		recipe.PUT("/", h.UpdateRecipe)
 		recipe.DELETE("/:id", h.DeleteRecipe)
+		recipe.POST("/rating", h.RecipeRating)
 	}
 }
 
@@ -43,6 +45,9 @@ func NewRecipeHandlers(e *gin.RouterGroup, recipeUsecase usecase.Recipe, culinar
 // @Param cooking_time_from query string false "cooking_time_from"
 // @Param cooking_time_to query string false "cooking_time_to"
 // @Param ingridients query string false "guid,guid"
+// @Param rating_from query float64 false "rating_from"
+// @Param rating_to query float64 false "rating_to"
+// @Param order_rating query int false "order_rating"
 // @Success 200 {array} models.Recipe
 // @Failure 400 {object} models.ErrorBadRequest
 func (r *recipeHandlers) RecipeList(c *gin.Context) {
@@ -50,25 +55,28 @@ func (r *recipeHandlers) RecipeList(c *gin.Context) {
 
 	params, err := helper.GetQueryParams(c)
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
 	list, err := r.recipeUsecase.List(ctx, params.GetLimit(), params.GetOffset(), params.GetFilter())
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
 	response := make([]*models.Recipe, 0, len(list))
 	for _, v := range list {
 		response = append(response, &models.Recipe{
-			Guid:        v.Guid,
-			Title:       v.Title,
-			Description: v.Description,
-			CreatedAt:   helper.TimeToStrRFC3339(v.CreatedAt),
-			UpdatedAt:   helper.TimeToStrRFC3339(v.UpdatedAt),
-			CookingTime: v.CookingTime,
+			Guid:            v.Guid,
+			Title:           v.Title,
+			Description:     v.Description,
+			CreatedAt:       helper.TimeToStrRFC3339(v.CreatedAt),
+			UpdatedAt:       helper.TimeToStrRFC3339(v.UpdatedAt),
+			CookingTime:     v.CookingTime,
+			Rating:          v.Rating,
+			NumberOfRatings: v.NumberOfRatings,
+			OverallRating:   v.OverallRating,
 		})
 	}
 	c.JSON(200, response)
@@ -90,7 +98,7 @@ func (r *recipeHandlers) Recipe(c *gin.Context) {
 		"recipe_id": c.Param("id"),
 	})
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -115,12 +123,15 @@ func (r *recipeHandlers) Recipe(c *gin.Context) {
 	}
 	c.JSON(200, &models.CulinaryAggregator{
 		Recipe: &models.Recipe{
-			Guid:        result.Recipe.Guid,
-			Title:       result.Recipe.Title,
-			Description: result.Recipe.Description,
-			CreatedAt:   helper.TimeToStrRFC3339(result.Recipe.CreatedAt),
-			UpdatedAt:   helper.TimeToStrRFC3339(result.Recipe.UpdatedAt),
-			CookingTime: result.Recipe.CookingTime,
+			Guid:            result.Recipe.Guid,
+			Title:           result.Recipe.Title,
+			Description:     result.Recipe.Description,
+			CreatedAt:       helper.TimeToStrRFC3339(result.Recipe.CreatedAt),
+			UpdatedAt:       helper.TimeToStrRFC3339(result.Recipe.UpdatedAt),
+			CookingTime:     result.Recipe.CookingTime,
+			Rating:          result.Recipe.Rating,
+			NumberOfRatings: result.Recipe.NumberOfRatings,
+			OverallRating:   result.Recipe.OverallRating,
 		},
 		Ingredients:  ingredients,
 		CookingSteps: steps,
@@ -142,13 +153,13 @@ func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
 	reqBody := &models.CreateAggregatorRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 	m := r.convertToEntityCreate(reqBody)
 
 	if err := r.culinaryAggregator.CreateRecipe(ctx, m); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -172,13 +183,13 @@ func (r *recipeHandlers) UpdateRecipe(c *gin.Context) {
 	reqBody := &models.UpdateRecipeRequest{}
 
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 	m := r.convertToEntityUpdate(reqBody)
 
 	if err := r.culinaryAggregator.UpdateRecipe(ctx, m); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -204,7 +215,7 @@ func (r *recipeHandlers) DeleteRecipe(c *gin.Context) {
 		"recipe_id": c.Param("id"),
 	})
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -283,4 +294,44 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 	}
 
 	return res
+}
+
+// @Security ApiKeyAuth
+// @Router /v1/recipe/rating [POST]
+// @Summary Recipe rating
+// @Description Recipe rating
+// @Tags rating
+// @Accept json
+// @Produce json
+// @Param body body models.RecipeRatingRequest true "data"
+// @Success 200 {object} models.RecipeRatingResponse
+// @Failure 400 {object} models.ErrorBadRequest
+func (r *recipeHandlers) RecipeRating(c *gin.Context) {
+	ctx := c.Request.Context()
+	reqBody := &models.RecipeRatingRequest{}
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		errors_pkg.Error(c, err)
+		return
+	}
+
+	if reqBody.Rating <= 0 && reqBody.Rating > 5 {
+		errors_pkg.Error(c, fmt.Errorf("rating must be from 1 to 5"))
+		return
+	}
+
+	userId, ok := c.Get("user_id")
+	if !ok {
+		errors_pkg.Error(c, fmt.Errorf("user not found"))
+		return
+	}
+
+	if err := r.culinaryAggregator.AddRating(ctx, userId.(string), reqBody.RecipeId, reqBody.Rating); err != nil {
+		errors_pkg.Error(c, err)
+		return
+	}
+
+	c.JSON(200, models.RecipeRatingResponse{
+		Success: true,
+	})
 }

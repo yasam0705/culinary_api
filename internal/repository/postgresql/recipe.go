@@ -64,6 +64,9 @@ func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Reci
 		"created_at",
 		"updated_at",
 		"cooking_time",
+		"rating",
+		"number_of_ratings",
+		"overall_rating",
 	).From(r.tableName)
 
 	for k, v := range m {
@@ -86,6 +89,9 @@ func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Reci
 		&result.CreatedAt,
 		&result.UpdatedAt,
 		&result.CookingTime,
+		&result.Rating,
+		&result.NumberOfRatings,
+		&result.OverallRating,
 	)
 	if err != nil {
 		return nil, r.db.PgErr(err)
@@ -102,6 +108,9 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 		"created_at",
 		"updated_at",
 		"cooking_time",
+		"rating",
+		"number_of_ratings",
+		"overall_rating",
 	).From(r.tableName)
 
 	for k, v := range m {
@@ -126,6 +135,16 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 				return nil, err
 			}
 			query = query.Where("guid IN ("+subSql+")", subArgs...)
+		case "rating_from":
+			query = query.Where(r.db.Builder.GtOrEqual("overall_rating", v))
+		case "rating_to":
+			query = query.Where(r.db.Builder.Lt("overall_rating", v))
+		case "order_rating":
+			ord := "ASC"
+			if v == "1" {
+				ord = "DESC"
+			}
+			query = query.OrderBy("overall_rating " + ord)
 		}
 	}
 
@@ -154,6 +173,9 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 			&temp.CreatedAt,
 			&temp.UpdatedAt,
 			&temp.CookingTime,
+			&temp.Rating,
+			&temp.NumberOfRatings,
+			&temp.OverallRating,
 		)
 		if err != nil {
 			return nil, r.db.PgErr(err)
@@ -166,10 +188,13 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 
 func (r *recipe) getMap(t string, m *entity.Recipe) map[string]interface{} {
 	result := map[string]interface{}{
-		"title":        m.Title,
-		"description":  m.Description,
-		"updated_at":   m.UpdatedAt,
-		"cooking_time": m.CookingTime,
+		"title":             m.Title,
+		"description":       m.Description,
+		"updated_at":        m.UpdatedAt,
+		"cooking_time":      m.CookingTime,
+		"rating":            m.Rating,
+		"number_of_ratings": m.NumberOfRatings,
+		"overall_rating":    m.OverallRating,
 	}
 	if t == "create" {
 		result["guid"] = m.Guid

@@ -268,6 +268,24 @@
                         "description": "guid,guid",
                         "name": "ingridients",
                         "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "rating_from",
+                        "name": "rating_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "rating_to",
+                        "name": "rating_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "order_rating",
+                        "name": "order_rating",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -547,6 +565,51 @@
                             "items": {
                                 "$ref": "#/definitions/models.DeleteIngredientResponse"
                             }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorBadRequest"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/recipe/rating": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Recipe rating",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rating"
+                ],
+                "summary": "Recipe rating",
+                "parameters": [
+                    {
+                        "description": "data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RecipeRatingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.RecipeRatingResponse"
                         }
                     },
                     "400": {
@@ -948,11 +1011,39 @@
                 "guid": {
                     "type": "string"
                 },
+                "number_of_ratings": {
+                    "type": "integer"
+                },
+                "overall_rating": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.RecipeRatingRequest": {
+            "type": "object",
+            "properties": {
+                "rating": {
+                    "type": "integer"
+                },
+                "recipe_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RecipeRatingResponse": {
+            "type": "object",
+            "properties": {
+                "succress": {
+                    "type": "boolean"
                 }
             }
         },

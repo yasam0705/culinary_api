@@ -1,0 +1,12 @@
+ALTER TABLE IF EXISTS "recipe" ADD COLUMN IF NOT EXISTS "rating" BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE IF EXISTS "recipe" ADD COLUMN IF NOT EXISTS "number_of_ratings" BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE IF EXISTS "recipe" ADD COLUMN IF NOT EXISTS "overall_rating" NUMERIC(18,2) NOT NULL DEFAULT 0;
+
+
+CREATE TABLE IF NOT EXISTS "user_ratings"(
+    "guid"          UUID PRIMARY KEY,
+    "user_id"       VARCHAR NOT NULL UNIQUE,
+    "recipe_id"     VARCHAR NOT NULL DEFAULT '',
+    "rating"        SMALLINT NOT NULL DEFAULT 0,
+    "created_at"    TIMESTAMP DEFAULT now()
+);

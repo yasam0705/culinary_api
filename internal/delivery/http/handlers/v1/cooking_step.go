@@ -43,7 +43,7 @@ func (r *cookingStepHandlers) CreateStep(c *gin.Context) {
 
 	reqBody := &models.CreateStepRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -55,7 +55,7 @@ func (r *cookingStepHandlers) CreateStep(c *gin.Context) {
 	}
 
 	if err := r.culinaryAggregator.CreateCookingStep(ctx, i); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func (r *cookingStepHandlers) UpdateStep(c *gin.Context) {
 
 	reqBody := &models.UpdateStepRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -92,7 +92,7 @@ func (r *cookingStepHandlers) UpdateStep(c *gin.Context) {
 	}
 
 	if err := r.culinaryAggregator.UpdateCookingStep(ctx, i); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -115,7 +115,7 @@ func (r *cookingStepHandlers) DeleteStep(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	if err := r.culinaryAggregator.DeleteCookingStep(ctx, c.Param("id")); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 

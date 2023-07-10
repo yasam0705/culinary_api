@@ -54,12 +54,12 @@ func (r *authHandlers) Registration(c *gin.Context) {
 
 	reqBody := &models.RegistrationRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
 	if reqBody.Password != reqBody.RetryPassword {
-		c.JSON(errors_pkg.Error(fmt.Errorf("password mismatch")))
+		errors_pkg.Error(c, fmt.Errorf("password mismatch"))
 		return
 	}
 
@@ -69,7 +69,7 @@ func (r *authHandlers) Registration(c *gin.Context) {
 	}
 
 	if err := r.authUseCase.Registration(ctx, i); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -93,7 +93,7 @@ func (r *authHandlers) Login(c *gin.Context) {
 
 	reqBody := &models.LoginRequest{}
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -103,17 +103,16 @@ func (r *authHandlers) Login(c *gin.Context) {
 	}
 	user, err := r.authUseCase.Login(ctx, i)
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
-	_ = user
 
 	// jwt
 	accessToken, err := helper.CreateToken(user.Guid, r.secret, r.accessTokenTTL, map[string]string{
 		"typ": accessTokenType,
 	})
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 
@@ -121,7 +120,7 @@ func (r *authHandlers) Login(c *gin.Context) {
 		"typ": accessTokenType,
 	})
 	if err != nil {
-		c.JSON(errors_pkg.Error(err))
+		errors_pkg.Error(c, err)
 		return
 	}
 

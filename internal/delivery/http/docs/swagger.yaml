@@ -194,10 +194,28 @@ definitions:
         type: string
       guid:
         type: string
+      number_of_ratings:
+        type: integer
+      overall_rating:
+        type: number
+      rating:
+        type: integer
       title:
         type: string
       updated_at:
         type: string
+    type: object
+  models.RecipeRatingRequest:
+    properties:
+      rating:
+        type: integer
+      recipe_id:
+        type: string
+    type: object
+  models.RecipeRatingResponse:
+    properties:
+      succress:
+        type: boolean
     type: object
   models.RecipeUpdate:
     properties:
@@ -443,6 +461,18 @@ paths:
         in: query
         name: ingridients
         type: string
+      - description: rating_from
+        in: query
+        name: rating_from
+        type: number
+      - description: rating_to
+        in: query
+        name: rating_to
+        type: number
+      - description: order_rating
+        in: query
+        name: order_rating
+        type: integer
       produces:
       - application/json
       responses:
@@ -685,6 +715,34 @@ paths:
       summary: Recipe by id
       tags:
       - aggregator
+  /v1/recipe/rating:
+    post:
+      consumes:
+      - application/json
+      description: Recipe rating
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RecipeRatingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RecipeRatingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Recipe rating
+      tags:
+      - rating
 securityDefinitions:
   ApiKeyAuth:
     in: header
