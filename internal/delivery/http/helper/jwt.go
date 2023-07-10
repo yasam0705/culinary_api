@@ -26,7 +26,7 @@ func CreateToken(guid, secret string, duration time.Duration, m map[string]strin
 }
 
 func VerifyToken(secret, tokenStr string) error {
-	if len(tokenStr) > 8 && tokenStr[:7] != "Bearer " {
+	if !(len(tokenStr) > 8 && tokenStr[:7] == "Bearer ") {
 		return fmt.Errorf("invalid token")
 	}
 
