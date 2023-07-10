@@ -31,7 +31,7 @@ func (r *users) Create(ctx context.Context, m *entity.User) error {
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 	return nil
 }
@@ -49,7 +49,7 @@ func (r *users) Update(ctx context.Context, m *entity.User) error {
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 	return nil
 }
@@ -65,8 +65,8 @@ func (r *users) FindOne(ctx context.Context, m map[string]string) (*entity.User,
 
 	for k, v := range m {
 		switch k {
-		case "recipe_id":
-			query = query.Where(r.db.Builder.Equal("guid", v))
+		case "username", "guid":
+			query = query.Where(r.db.Builder.Equal(k, v))
 		}
 	}
 
@@ -84,7 +84,7 @@ func (r *users) FindOne(ctx context.Context, m map[string]string) (*entity.User,
 		&result.UpdatedAt,
 	)
 	if err != nil {
-		return nil, err
+		return nil, r.db.PgErr(err)
 	}
 
 	return result, nil
@@ -101,7 +101,7 @@ func (r *users) FindAll(ctx context.Context, limit, offset uint64, m map[string]
 
 	for k, v := range m {
 		switch k {
-		case "guid":
+		case "guid", "username":
 			query = query.Where(r.db.Builder.Equal(k, v))
 		}
 	}
@@ -117,7 +117,7 @@ func (r *users) FindAll(ctx context.Context, limit, offset uint64, m map[string]
 
 	rows, err := r.db.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, r.db.PgErr(err)
 	}
 	defer rows.Close()
 
@@ -132,7 +132,7 @@ func (r *users) FindAll(ctx context.Context, limit, offset uint64, m map[string]
 			&temp.UpdatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, r.db.PgErr(err)
 		}
 		result = append(result, temp)
 	}
@@ -176,7 +176,7 @@ func (r *users) Delete(ctx context.Context, filter map[string]string) error {
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 
 	return nil

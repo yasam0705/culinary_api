@@ -25,9 +25,11 @@ func (b *base) BeginTx(ctx context.Context) (context.Context, error) {
 }
 
 func (b *base) Rollback(ctx context.Context) error {
-	return b.db.Rollback(ctx)
+	err := b.db.Rollback(ctx)
+	return b.db.PgErr(err)
 }
 
 func (b *base) Commit(ctx context.Context) error {
-	return b.db.Commit(ctx)
+	err := b.db.Commit(ctx)
+	return b.db.PgErr(err)
 }

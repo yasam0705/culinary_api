@@ -16,13 +16,13 @@ type ingridientHandlers struct {
 	culinaryAggregator usecase.CulinaryAggregator
 }
 
-func NewIngridientHandlers(e *gin.RouterGroup, culinaryAggregator usecase.CulinaryAggregator, ingredientsUseCase usecase.Ingredients) {
+func NewIngridientHandlers(e *gin.RouterGroup, culinaryAggregator usecase.CulinaryAggregator, ingredientsUseCase usecase.Ingredients, middleware ...gin.HandlerFunc) {
 	h := ingridientHandlers{
 		ingredientsUseCase: ingredientsUseCase,
 		culinaryAggregator: culinaryAggregator,
 	}
 
-	ingridient := e.Group("/recipe-ingridient")
+	ingridient := e.Group("/recipe-ingridient", middleware...)
 	{
 		ingridient.GET("/", h.IngredientList)
 		ingridient.POST("/", h.CreateIngredient)
@@ -67,6 +67,7 @@ func (r *ingridientHandlers) IngredientList(c *gin.Context) {
 	c.JSON(200, response)
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/recipe-ingridient [POST]
 // @Summary Create ingridient
 // @Description Create ingridient
@@ -100,6 +101,7 @@ func (r *ingridientHandlers) CreateIngredient(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/recipe-ingridient [PUT]
 // @Summary Update ingridient
 // @Description Update ingridient
@@ -135,6 +137,7 @@ func (r *ingridientHandlers) UpdateIngredient(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/recipe-ingridient [DELETE]
 // @Summary Delete ingridient by id
 // @Description Delete ingridient by id

@@ -16,13 +16,13 @@ type recipeHandlers struct {
 	culinaryAggregator usecase.CulinaryAggregator
 }
 
-func NewRecipeHandlers(e *gin.RouterGroup, recipeUsecase usecase.Recipe, culinaryAggregator usecase.CulinaryAggregator) {
+func NewRecipeHandlers(e *gin.RouterGroup, recipeUsecase usecase.Recipe, culinaryAggregator usecase.CulinaryAggregator, middleware ...gin.HandlerFunc) {
 	h := recipeHandlers{
 		recipeUsecase:      recipeUsecase,
 		culinaryAggregator: culinaryAggregator,
 	}
 
-	recipe := e.Group("/recipe")
+	recipe := e.Group("/recipe", middleware...)
 	{
 		recipe.GET("/", h.RecipeList)
 		recipe.GET("/:id", h.Recipe)
@@ -127,6 +127,7 @@ func (r *recipeHandlers) Recipe(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/recipe [POST]
 // @Summary Create recipe
 // @Description Create recipe
@@ -156,6 +157,7 @@ func (r *recipeHandlers) CreateRecipe(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/recipe [PUT]
 // @Summary Update recipe
 // @Description Update recipe
@@ -185,6 +187,7 @@ func (r *recipeHandlers) UpdateRecipe(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/recipe/{id} [DELETE]
 // @Summary Delete recipe by id
 // @Description Delete recipe by id

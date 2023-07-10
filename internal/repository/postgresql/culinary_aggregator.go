@@ -44,7 +44,7 @@ func (c *culinaryAggregator) Ingridients(ctx context.Context, filters map[string
 
 	rows, err := c.db.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, c.db.PgErr(err)
 	}
 	defer rows.Close()
 
@@ -58,7 +58,7 @@ func (c *culinaryAggregator) Ingridients(ctx context.Context, filters map[string
 			&temp.Count,
 		)
 		if err != nil {
-			return nil, err
+			return nil, c.db.PgErr(err)
 		}
 		list = append(list, temp)
 	}

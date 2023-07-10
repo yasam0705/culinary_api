@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	errors_pkg "github/culinary_api/internal/delivery/http/errors"
 	"github/culinary_api/internal/delivery/http/models"
 	"github/culinary_api/internal/entity"
@@ -15,13 +14,13 @@ type cookingStepHandlers struct {
 	culinaryAggregator  usecase.CulinaryAggregator
 }
 
-func NewCookingStepHandlers(e *gin.RouterGroup, culinaryAggregator usecase.CulinaryAggregator, cookingStepsUseCase usecase.CookingSteps) {
+func NewCookingStepHandlers(e *gin.RouterGroup, culinaryAggregator usecase.CulinaryAggregator, cookingStepsUseCase usecase.CookingSteps, middleware ...gin.HandlerFunc) {
 	h := cookingStepHandlers{
 		culinaryAggregator:  culinaryAggregator,
 		cookingStepsUseCase: cookingStepsUseCase,
 	}
 
-	cookingStep := e.Group("/cooking-step")
+	cookingStep := e.Group("/cooking-step", middleware...)
 	{
 		cookingStep.POST("/", h.CreateStep)
 		cookingStep.PUT("/", h.UpdateStep)
@@ -29,6 +28,7 @@ func NewCookingStepHandlers(e *gin.RouterGroup, culinaryAggregator usecase.Culin
 	}
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/cooking-step [POST]
 // @Summary Create cooking step
 // @Description Create cooking step
@@ -64,6 +64,7 @@ func (r *cookingStepHandlers) CreateStep(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/cooking-step [PUT]
 // @Summary Update cooking step
 // @Description Update cooking step
@@ -100,6 +101,7 @@ func (r *cookingStepHandlers) UpdateStep(c *gin.Context) {
 	})
 }
 
+// @Security ApiKeyAuth
 // @Router /v1/cooking-step/{id} [DELETE]
 // @Summary Delete cooking step by id
 // @Description Delete cooking step by id
@@ -112,7 +114,6 @@ func (r *cookingStepHandlers) UpdateStep(c *gin.Context) {
 func (r *cookingStepHandlers) DeleteStep(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	fmt.Println(c.Param("id"))
 	if err := r.culinaryAggregator.DeleteCookingStep(ctx, c.Param("id")); err != nil {
 		c.JSON(errors_pkg.Error(err))
 		return

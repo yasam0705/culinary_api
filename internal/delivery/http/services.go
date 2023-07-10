@@ -8,15 +8,17 @@ type services struct {
 	recipe             usecase.Recipe
 	recipeIngredient   usecase.RecipeIngredient
 	culinaryAggregator usecase.CulinaryAggregator
+	auth               usecase.Auth
 }
 
-func CreateServices(cookingSteps usecase.CookingSteps, ingredients usecase.Ingredients, recipe usecase.Recipe, recipeIngredient usecase.RecipeIngredient, culinaryAggregator usecase.CulinaryAggregator) *services {
+func CreateServices(cookingSteps usecase.CookingSteps, ingredients usecase.Ingredients, recipe usecase.Recipe, recipeIngredient usecase.RecipeIngredient, culinaryAggregator usecase.CulinaryAggregator, auth usecase.Auth) *services {
 	return &services{
 		cookingSteps:       cookingSteps,
 		ingredients:        ingredients,
 		recipe:             recipe,
 		recipeIngredient:   recipeIngredient,
 		culinaryAggregator: culinaryAggregator,
+		auth:               auth,
 	}
 }
 
@@ -38,4 +40,8 @@ func (s *services) RecipeIngredient() usecase.RecipeIngredient {
 
 func (s *services) CulinaryAggregator() usecase.CulinaryAggregator {
 	return s.culinaryAggregator
+}
+
+func (s *services) Auth() usecase.Auth {
+	return s.auth
 }

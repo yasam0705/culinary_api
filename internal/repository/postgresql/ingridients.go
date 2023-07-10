@@ -34,10 +34,8 @@ func (r *ingredients) Create(ctx context.Context, m *entity.Ingredients) error {
 		&guid,
 	)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
-
-	// INSERT INTO ingredients (dimension,guid,name) VALUES ('ml','15a6111e-32a8-485c-be1c-2f01fdfc98cd','olive oil') ON CONFLICT (name) DO NOTHING RETURNING guid;
 	m.Guid = guid
 	return nil
 }
@@ -55,7 +53,7 @@ func (r *ingredients) Update(ctx context.Context, m *entity.Ingredients) error {
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 	return nil
 }
@@ -86,7 +84,7 @@ func (r *ingredients) FindOne(ctx context.Context, m map[string]string) (*entity
 		&result.Dimension,
 	)
 	if err != nil {
-		return nil, err
+		return nil, r.db.PgErr(err)
 	}
 
 	return result, nil
@@ -117,7 +115,7 @@ func (r *ingredients) FindAll(ctx context.Context, limit, offset uint64, m map[s
 
 	rows, err := r.db.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, r.db.PgErr(err)
 	}
 	defer rows.Close()
 
@@ -130,7 +128,7 @@ func (r *ingredients) FindAll(ctx context.Context, limit, offset uint64, m map[s
 			&temp.Dimension,
 		)
 		if err != nil {
-			return nil, err
+			return nil, r.db.PgErr(err)
 		}
 		result = append(result, temp)
 	}

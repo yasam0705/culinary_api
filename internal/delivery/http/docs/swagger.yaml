@@ -166,6 +166,24 @@ definitions:
       name:
         type: string
     type: object
+  models.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      access_token_ttl:
+        type: integer
+      refresh_token:
+        type: string
+      refresh_token_ttl:
+        type: integer
+    type: object
   models.Recipe:
     properties:
       cooking_time:
@@ -188,6 +206,20 @@ definitions:
       guid:
         type: string
       title:
+        type: string
+    type: object
+  models.RegistrationRequest:
+    properties:
+      password:
+        type: string
+      retry_password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.RegistrationResponse:
+    properties:
+      guid:
         type: string
     type: object
   models.UpdateIngredientRequest:
@@ -247,6 +279,62 @@ definitions:
 info:
   contact: {}
 paths:
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Registration user
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Registration user
+      tags:
+      - auth
+  /v1/auth/registration:
+    post:
+      consumes:
+      - application/json
+      description: Registration user
+      parameters:
+      - description: data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegistrationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegistrationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
+      summary: Registration user
+      tags:
+      - auth
   /v1/cooking-step:
     post:
       consumes:
@@ -270,6 +358,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Create cooking step
       tags:
       - cooking-step
@@ -295,6 +385,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Update cooking step
       tags:
       - cooking-step
@@ -315,13 +407,13 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.DeleteStepResponse'
-            type: array
+            $ref: '#/definitions/models.DeleteStepResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Delete cooking step by id
       tags:
       - cooking-step
@@ -389,6 +481,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Create recipe
       tags:
       - aggregator
@@ -414,6 +508,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Update recipe
       tags:
       - aggregator
@@ -446,6 +542,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Delete ingridient by id
       tags:
       - recipe-ingridient
@@ -500,6 +598,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Create ingridient
       tags:
       - recipe-ingridient
@@ -525,6 +625,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Update ingridient
       tags:
       - recipe-ingridient
@@ -552,6 +654,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorBadRequest'
+      security:
+      - ApiKeyAuth: []
       summary: Delete recipe by id
       tags:
       - aggregator
@@ -581,4 +685,9 @@ paths:
       summary: Recipe by id
       tags:
       - aggregator
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

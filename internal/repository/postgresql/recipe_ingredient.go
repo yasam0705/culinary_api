@@ -31,7 +31,7 @@ func (r *recipeIngredient) Create(ctx context.Context, m *entity.RecipeIngredien
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 	return nil
 }
@@ -49,7 +49,7 @@ func (r *recipeIngredient) Update(ctx context.Context, m *entity.RecipeIngredien
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 	return nil
 }
@@ -80,7 +80,7 @@ func (r *recipeIngredient) FindOne(ctx context.Context, m map[string]string) (*e
 		&result.Count,
 	)
 	if err != nil {
-		return nil, err
+		return nil, r.db.PgErr(err)
 	}
 
 	return result, nil
@@ -111,7 +111,7 @@ func (r *recipeIngredient) FindAll(ctx context.Context, limit, offset uint64, m 
 
 	rows, err := r.db.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, err
+		return nil, r.db.PgErr(err)
 	}
 	defer rows.Close()
 
@@ -124,7 +124,7 @@ func (r *recipeIngredient) FindAll(ctx context.Context, limit, offset uint64, m 
 			&temp.Count,
 		)
 		if err != nil {
-			return nil, err
+			return nil, r.db.PgErr(err)
 		}
 		result = append(result, temp)
 	}
@@ -166,7 +166,7 @@ func (r *recipeIngredient) Delete(ctx context.Context, filter map[string]string)
 
 	_, err = r.db.Exec(ctx, sql, args...)
 	if err != nil {
-		return err
+		return r.db.PgErr(err)
 	}
 	return nil
 }

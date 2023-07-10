@@ -2,10 +2,12 @@ package postgres
 
 import (
 	"context"
+	"github/culinary_api/internal/entity"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/lib/pq"
 )
 
 type txType struct{}
@@ -56,4 +58,23 @@ func (db *DB) Commit(ctx context.Context) error {
 
 func (db *DB) Close() {
 	db.pool.Close()
+}
+
+func (db *DB) PgErr(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if pgErr, ok := err.(*pq.Error); ok {
+		switch pgErr.Code {
+		case "23505":
+			return entity.ErrorAlreadyExists
+		}
+	}
+
+	if err == pgx.ErrNoRows {
+		return entity.ErrorNotFound
+	}
+
+	return err
 }

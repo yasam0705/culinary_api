@@ -1,7 +1,9 @@
 package http
 
 import (
+	"github/culinary_api/config"
 	"github/culinary_api/internal/delivery/http/handlers"
+	"github/culinary_api/internal/delivery/http/middlewares"
 	"github/culinary_api/pkg/logger"
 
 	_ "github/culinary_api/internal/delivery/http/docs"
@@ -13,26 +15,33 @@ import (
 )
 
 type router struct {
-	log      logger.Logger
-	Engine   *gin.Engine
-	Services *services
+	Log      logger.Logger
+	Cfg      *config.Config
+	engine   *gin.Engine
+	services *services
 }
 
-func NewRouter(log logger.Logger, s *services) (*router, error) {
+// NewRoute
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+func NewRouter(cfg *config.Config, log logger.Logger, s *services) (*router, error) {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(gin.Logger())
 
-	handlers.NewHandlersV1(r, s)
+	m := middlewares.NewMiddleware(cfg)
 
+	handlers.NewHandlersV1(r, cfg, s, m)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	return &router{
-		log:      log,
-		Engine:   r,
-		Services: s,
+		Log:      log,
+		Cfg:      cfg,
+		engine:   r,
+		services: s,
 	}, nil
 }
 
 func (r *router) Run(port string) error {
-	return r.Engine.Run(port)
+	return r.engine.Run(port)
 }
