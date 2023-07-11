@@ -67,6 +67,7 @@ func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Reci
 		"rating",
 		"number_of_ratings",
 		"overall_rating",
+		"image",
 	).From(r.tableName)
 
 	for k, v := range m {
@@ -92,6 +93,7 @@ func (r *recipe) FindOne(ctx context.Context, m map[string]string) (*entity.Reci
 		&result.Rating,
 		&result.NumberOfRatings,
 		&result.OverallRating,
+		&result.Image,
 	)
 	if err != nil {
 		return nil, r.db.PgErr(err)
@@ -111,6 +113,7 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 		"rating",
 		"number_of_ratings",
 		"overall_rating",
+		"image",
 	).From(r.tableName)
 
 	for k, v := range m {
@@ -176,6 +179,7 @@ func (r *recipe) FindAll(ctx context.Context, limit, offset uint64, m map[string
 			&temp.Rating,
 			&temp.NumberOfRatings,
 			&temp.OverallRating,
+			&temp.Image,
 		)
 		if err != nil {
 			return nil, r.db.PgErr(err)
@@ -195,6 +199,7 @@ func (r *recipe) getMap(t string, m *entity.Recipe) map[string]interface{} {
 		"rating":            m.Rating,
 		"number_of_ratings": m.NumberOfRatings,
 		"overall_rating":    m.OverallRating,
+		"image":             m.Image,
 	}
 	if t == "create" {
 		result["guid"] = m.Guid

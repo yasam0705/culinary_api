@@ -14,4 +14,5 @@ type Recipe struct {
 	Rating          int64
 	NumberOfRatings int64
 	OverallRating   float64
+	Image           string
 }

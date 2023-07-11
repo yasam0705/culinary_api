@@ -9,13 +9,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserRatingsrepo interface {
+type UserRatingsRepo interface {
 	Create(ctx context.Context, userRating *entity.UserRating) error
 	Update(ctx context.Context, userRating *entity.UserRating) error
 	FindOne(ctx context.Context, filter map[string]string) (*entity.UserRating, error)
 	FindAll(ctx context.Context, limit, offset uint64, filter map[string]string) ([]*entity.UserRating, error)
 }
 
+//go:generate mockgen -destination=tests/mocks/user_rating.go -package=mocks -source=user_rating.go
 type UserRatings interface {
 	Create(ctx context.Context, userRating *entity.UserRating) error
 	Update(ctx context.Context, userRating *entity.UserRating) error
@@ -24,10 +25,10 @@ type UserRatings interface {
 }
 
 type userRatings struct {
-	repo UserRatingsrepo
+	repo UserRatingsRepo
 }
 
-func NewUserRatings(repo UserRatingsrepo) *userRatings {
+func NewUserRatings(repo UserRatingsRepo) *userRatings {
 	return &userRatings{
 		repo: repo,
 	}

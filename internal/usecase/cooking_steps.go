@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate mockgen -destination=tests/mocks/cooking_steps.go -package=mocks -source=cooking_steps.go
 type CookingSteps interface {
 	Create(ctx context.Context, m *entity.CookingSteps) error
 	Update(ctx context.Context, m *entity.CookingSteps) error

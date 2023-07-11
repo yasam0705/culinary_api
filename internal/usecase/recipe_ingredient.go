@@ -5,6 +5,7 @@ import (
 	"github/culinary_api/internal/entity"
 )
 
+//go:generate mockgen -destination=tests/mocks/recipe_ingredient.go -package=mocks -source=recipe_ingredient.go
 type RecipeIngredient interface {
 	Create(ctx context.Context, m *entity.RecipeIngredient) error
 	Update(ctx context.Context, m *entity.RecipeIngredient) error

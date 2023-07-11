@@ -52,6 +52,7 @@ func (r *cookingStepHandlers) CreateStep(c *gin.Context) {
 		OrderNumber: reqBody.OrderNumber,
 		Description: reqBody.Description,
 		CookingTime: reqBody.CookingTime,
+		Image:       reqBody.Image,
 	}
 
 	if err := r.culinaryAggregator.CreateCookingStep(ctx, i); err != nil {
@@ -89,6 +90,7 @@ func (r *cookingStepHandlers) UpdateStep(c *gin.Context) {
 		OrderNumber: reqBody.OrderNumber,
 		Description: reqBody.Description,
 		CookingTime: reqBody.CookingTime,
+		Image:       reqBody.Image,
 	}
 
 	if err := r.culinaryAggregator.UpdateCookingStep(ctx, i); err != nil {

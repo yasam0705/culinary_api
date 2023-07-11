@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
@@ -63,4 +64,18 @@ func VerifyToken(secret, tokenStr string) (string, error) {
 		return "", fmt.Errorf("token is invalid")
 	}
 	return claims["iss"].(string), nil
+}
+
+func GetFromStorage(c *gin.Context) (map[string]string, bool) {
+	userId, ok := c.Get("user_id")
+	if !ok {
+		return nil, false
+	}
+	userIdStr, ok := userId.(string)
+	if !ok {
+		return nil, false
+	}
+	return map[string]string{
+		"user_id": userIdStr,
+	}, true
 }

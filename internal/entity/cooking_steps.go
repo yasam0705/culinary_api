@@ -6,4 +6,5 @@ type CookingSteps struct {
 	OrderNumber int
 	Description string
 	CookingTime float32
+	Image       string
 }

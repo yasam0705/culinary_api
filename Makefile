@@ -41,3 +41,8 @@ build-start:
 .PHONY: stop
 stop:
 	docker-compose down
+
+.PHONY: generate
+generate:
+	go generate ./...
+

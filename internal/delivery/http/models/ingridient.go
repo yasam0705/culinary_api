@@ -1,11 +1,5 @@
 package models
 
-// Guid
-// Name
-// Dimension
-// Count
-// RecipeId
-
 type Ingridient struct {
 	Guid      string `json:"guid"`
 	Name      string `json:"name"`
@@ -13,10 +7,10 @@ type Ingridient struct {
 }
 
 type CreateIngredientRequest struct {
-	Name      string  `json:"name"`
-	Dimension string  `json:"dimension"`
-	Count     float64 `json:"count"`
-	RecipeId  string  `json:"recipe_id"`
+	Name      string  `json:"name" validate:"required"`
+	Dimension string  `json:"dimension" validate:"required"`
+	Count     float64 `json:"count" validate:"required"`
+	RecipeId  string  `json:"recipe_id" validate:"required"`
 }
 
 type CreateIngredientResponse struct {

@@ -61,6 +61,7 @@ func (r *cookingSteps) FindOne(ctx context.Context, m map[string]string) (*entit
 		"order_number",
 		"description",
 		"cooking_time",
+		"image",
 	).From(r.tableName)
 
 	for k, v := range m {
@@ -82,6 +83,7 @@ func (r *cookingSteps) FindOne(ctx context.Context, m map[string]string) (*entit
 		&result.OrderNumber,
 		&result.Description,
 		&result.CookingTime,
+		&result.Image,
 	)
 	if err != nil {
 		return nil, r.db.PgErr(err)
@@ -97,6 +99,7 @@ func (r *cookingSteps) FindAll(ctx context.Context, limit, offset uint64, m map[
 		"order_number",
 		"description",
 		"cooking_time",
+		"image",
 	).From(r.tableName).OrderBy("order_number ASC")
 
 	for k, v := range m {
@@ -130,6 +133,7 @@ func (r *cookingSteps) FindAll(ctx context.Context, limit, offset uint64, m map[
 			&temp.OrderNumber,
 			&temp.Description,
 			&temp.CookingTime,
+			&temp.Image,
 		)
 		if err != nil {
 			return nil, r.db.PgErr(err)
@@ -145,6 +149,7 @@ func (r *cookingSteps) getMap(t string, m *entity.CookingSteps) map[string]inter
 		"order_number": m.OrderNumber,
 		"description":  m.Description,
 		"cooking_time": m.CookingTime,
+		"image":        m.Image,
 	}
 	if t == "create" {
 		result["guid"] = m.Guid

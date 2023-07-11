@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate mockgen -destination=tests/mocks/recipe.go -package=mocks -source=recipe.go
 type Recipe interface {
 	Create(ctx context.Context, m *entity.Recipe) error
 	Update(ctx context.Context, m *entity.Recipe) error

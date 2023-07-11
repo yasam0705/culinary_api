@@ -7,20 +7,22 @@ type CreateAggregatorRequest struct {
 }
 
 type CreateRecipeRequest struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description" validate:"required"`
+	Image       string `json:"image"`
 }
 
 type CreateIngredientsRequest struct {
-	Name      string  `json:"name"`
-	Dimension string  `json:"dimension"`
-	Count     float64 `json:"count"`
+	Name      string  `json:"name" validate:"required"`
+	Dimension string  `json:"dimension" validate:"required"`
+	Count     float64 `json:"count" validate:"required"`
 }
 
 type CreateCookingStepsRequest struct {
-	OrderNumber int     `json:"order_number"`
-	Description string  `json:"description"`
+	OrderNumber int     `json:"order_number" validate:"required"`
+	Description string  `json:"description" validate:"required"`
 	CookingTime float32 `json:"cooking_time"`
+	Image       string  `json:"image"`
 }
 
 type CreateAggregatorResponse struct {
@@ -35,6 +37,7 @@ type RecipeUpdate struct {
 	Guid        string `json:"guid"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Image       string `json:"image"`
 }
 
 type IngredientsUpdate struct {
@@ -50,6 +53,7 @@ type CookingStepsUpdate struct {
 	OrderNumber int     `json:"order_number"`
 	Description string  `json:"description"`
 	CookingTime float32 `json:"cooking_time"`
+	Image       string  `json:"image"`
 }
 
 type UpdateRecipeRequest struct {
@@ -59,11 +63,11 @@ type UpdateRecipeRequest struct {
 }
 
 type UpdateRecipeResponse struct {
-	Success bool `json:"succress"`
+	Success bool `json:"succress" `
 }
 
 type RecipeRatingRequest struct {
-	Rating   int8   `json:"rating"`
+	Rating   int8   `json:"rating" minimum:"0" maximum:"6"`
 	RecipeId string `json:"recipe_id"`
 }
 

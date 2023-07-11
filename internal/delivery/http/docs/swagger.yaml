@@ -20,6 +20,8 @@ definitions:
         type: string
       guid:
         type: string
+      image:
+        type: string
       order_number:
         type: integer
       recipe_id:
@@ -49,8 +51,13 @@ definitions:
         type: number
       description:
         type: string
+      image:
+        type: string
       order_number:
         type: integer
+    required:
+    - description
+    - order_number
     type: object
   models.CreateIngredientRequest:
     properties:
@@ -62,6 +69,11 @@ definitions:
         type: string
       recipe_id:
         type: string
+    required:
+    - count
+    - dimension
+    - name
+    - recipe_id
     type: object
   models.CreateIngredientResponse:
     properties:
@@ -76,13 +88,22 @@ definitions:
         type: string
       name:
         type: string
+    required:
+    - count
+    - dimension
+    - name
     type: object
   models.CreateRecipeRequest:
     properties:
       description:
         type: string
+      image:
+        type: string
       title:
         type: string
+    required:
+    - description
+    - title
     type: object
   models.CreateStepRequest:
     properties:
@@ -90,10 +111,16 @@ definitions:
         type: number
       description:
         type: string
+      image:
+        type: string
       order_number:
         type: integer
       recipe_id:
         type: string
+    required:
+    - description
+    - order_number
+    - recipe_id
     type: object
   models.CreateStepResponse:
     properties:
@@ -172,6 +199,9 @@ definitions:
         type: string
       username:
         type: string
+    required:
+    - password
+    - username
     type: object
   models.LoginResponse:
     properties:
@@ -208,6 +238,8 @@ definitions:
   models.RecipeRatingRequest:
     properties:
       rating:
+        maximum: 6
+        minimum: 0
         type: integer
       recipe_id:
         type: string
@@ -223,6 +255,8 @@ definitions:
         type: string
       guid:
         type: string
+      image:
+        type: string
       title:
         type: string
     type: object
@@ -234,6 +268,10 @@ definitions:
         type: string
       username:
         type: string
+    required:
+    - password
+    - retry_password
+    - username
     type: object
   models.RegistrationResponse:
     properties:
@@ -284,10 +322,15 @@ definitions:
         type: string
       guid:
         type: string
+      image:
+        type: string
       order_number:
         type: integer
       recipe_id:
         type: string
+    required:
+    - guid
+    - recipe_id
     type: object
   models.UpdateStepResponse:
     properties:

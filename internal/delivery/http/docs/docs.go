@@ -752,6 +752,9 @@ const docTemplate = `{
                 "guid": {
                     "type": "string"
                 },
+                "image": {
+                    "type": "string"
+                },
                 "order_number": {
                     "type": "integer"
                 },
@@ -790,11 +793,18 @@ const docTemplate = `{
         },
         "models.CreateCookingStepsRequest": {
             "type": "object",
+            "required": [
+                "description",
+                "order_number"
+            ],
             "properties": {
                 "cooking_time": {
                     "type": "number"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 },
                 "order_number": {
@@ -804,6 +814,12 @@ const docTemplate = `{
         },
         "models.CreateIngredientRequest": {
             "type": "object",
+            "required": [
+                "count",
+                "dimension",
+                "name",
+                "recipe_id"
+            ],
             "properties": {
                 "count": {
                     "type": "number"
@@ -829,6 +845,11 @@ const docTemplate = `{
         },
         "models.CreateIngredientsRequest": {
             "type": "object",
+            "required": [
+                "count",
+                "dimension",
+                "name"
+            ],
             "properties": {
                 "count": {
                     "type": "number"
@@ -843,8 +864,15 @@ const docTemplate = `{
         },
         "models.CreateRecipeRequest": {
             "type": "object",
+            "required": [
+                "description",
+                "title"
+            ],
             "properties": {
                 "description": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 },
                 "title": {
@@ -854,11 +882,19 @@ const docTemplate = `{
         },
         "models.CreateStepRequest": {
             "type": "object",
+            "required": [
+                "description",
+                "order_number",
+                "recipe_id"
+            ],
             "properties": {
                 "cooking_time": {
                     "type": "number"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 },
                 "order_number": {
@@ -982,6 +1018,10 @@ const docTemplate = `{
         },
         "models.LoginRequest": {
             "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
             "properties": {
                 "password": {
                     "type": "string"
@@ -1044,7 +1084,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 6,
+                    "minimum": 0
                 },
                 "recipe_id": {
                     "type": "string"
@@ -1068,6 +1110,9 @@ const docTemplate = `{
                 "guid": {
                     "type": "string"
                 },
+                "image": {
+                    "type": "string"
+                },
                 "title": {
                     "type": "string"
                 }
@@ -1075,6 +1120,11 @@ const docTemplate = `{
         },
         "models.RegistrationRequest": {
             "type": "object",
+            "required": [
+                "password",
+                "retry_password",
+                "username"
+            ],
             "properties": {
                 "password": {
                     "type": "string"
@@ -1153,6 +1203,10 @@ const docTemplate = `{
         },
         "models.UpdateStepRequest": {
             "type": "object",
+            "required": [
+                "guid",
+                "recipe_id"
+            ],
             "properties": {
                 "cooking_time": {
                     "type": "number"
@@ -1161,6 +1215,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "guid": {
+                    "type": "string"
+                },
+                "image": {
                     "type": "string"
                 },
                 "order_number": {

@@ -3,12 +3,12 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github/culinary_api/internal/entity"
 	math_pkg "github/culinary_api/pkg/math"
 	"log"
 )
 
+// интерфейс содержит много методов, было бы лучше их разделить
 type CulinaryAggregator interface {
 	CreateRecipe(ctx context.Context, m *entity.CulinaryAggregator) (err error)
 	GetRecipe(ctx context.Context, filter map[string]string) (*entity.CulinaryAggregator, error)
@@ -29,12 +29,13 @@ type CulinaryAggregator interface {
 	AddRating(ctx context.Context, userId, recipeId string, rating int8) (err error)
 }
 
+//go:generate mockgen -destination=tests/mocks/culinary_aggregator.go -package=mocks -source=culinary_aggregator.go
 type CulinaryAggregatorRepo interface {
 	Ingridients(ctx context.Context, filters map[string]string) ([]*entity.Ingredients, error)
 }
 
 type culinaryAggregator struct {
-	*base
+	base             Base
 	repo             CulinaryAggregatorRepo
 	recipe           Recipe
 	cookingSteps     CookingSteps
@@ -44,7 +45,7 @@ type culinaryAggregator struct {
 }
 
 func NewCulinaryAggregator(
-	base *base,
+	base Base,
 	repo CulinaryAggregatorRepo,
 	recipe Recipe,
 	cookingSteps CookingSteps,
@@ -64,13 +65,13 @@ func NewCulinaryAggregator(
 }
 
 func (c *culinaryAggregator) CreateRecipe(ctx context.Context, m *entity.CulinaryAggregator) (err error) {
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -103,7 +104,7 @@ func (c *culinaryAggregator) CreateRecipe(ctx context.Context, m *entity.Culinar
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 func (c *culinaryAggregator) GetRecipe(ctx context.Context, filter map[string]string) (*entity.CulinaryAggregator, error) {
@@ -131,13 +132,13 @@ func (c *culinaryAggregator) GetRecipe(ctx context.Context, filter map[string]st
 
 func (c *culinaryAggregator) DeleteRecipe(ctx context.Context, filter map[string]string) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -153,18 +154,18 @@ func (c *culinaryAggregator) DeleteRecipe(ctx context.Context, filter map[string
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 func (c *culinaryAggregator) UpdateRecipe(ctx context.Context, m *entity.CulinaryAggregator) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -189,19 +190,19 @@ func (c *culinaryAggregator) UpdateRecipe(ctx context.Context, m *entity.Culinar
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 // INGRIDIENT
 func (c *culinaryAggregator) CreateIngredient(ctx context.Context, recipeId string, m *entity.Ingredients) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -218,18 +219,18 @@ func (c *culinaryAggregator) CreateIngredient(ctx context.Context, recipeId stri
 	if err = c.recipeIngredient.Create(contextTx, l); err != nil {
 		return err
 	}
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 func (c *culinaryAggregator) UpdateIngredient(ctx context.Context, recipeId string, m *entity.Ingredients) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -246,7 +247,7 @@ func (c *culinaryAggregator) UpdateIngredient(ctx context.Context, recipeId stri
 	if err = c.recipeIngredient.Update(contextTx, l); err != nil {
 		return err
 	}
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 func (c *culinaryAggregator) DeleteIngredient(ctx context.Context, recipeId, ingridientId string) error {
@@ -259,13 +260,13 @@ func (c *culinaryAggregator) DeleteIngredient(ctx context.Context, recipeId, ing
 // COOKING STEP
 func (c *culinaryAggregator) CreateCookingStep(ctx context.Context, m *entity.CookingSteps) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -285,18 +286,18 @@ func (c *culinaryAggregator) CreateCookingStep(ctx context.Context, m *entity.Co
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 func (c *culinaryAggregator) UpdateCookingStep(ctx context.Context, m *entity.CookingSteps) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -323,18 +324,18 @@ func (c *culinaryAggregator) UpdateCookingStep(ctx context.Context, m *entity.Co
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 func (c *culinaryAggregator) DeleteCookingStep(ctx context.Context, id string) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
@@ -363,30 +364,31 @@ func (c *culinaryAggregator) DeleteCookingStep(ctx context.Context, id string) (
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }
 
 // RATING
 func (c *culinaryAggregator) AddRating(ctx context.Context, userId, recipeId string, rating int8) (err error) {
 	// TRANSACTION
-	contextTx, err := c.base.beginTx(ctx)
+	contextTx, err := c.base.BeginTx(ctx)
 	if err != nil {
 		return err
 	}
 	defer func() {
 		if err != nil {
-			log.Println("ROLLBACK TRANSACTION", c.base.rollback(contextTx))
+			log.Println("ROLLBACK TRANSACTION", c.base.Rollback(contextTx))
 		}
 	}()
 
 	userRating, err := c.userRatings.Get(contextTx, map[string]string{
-		"user_id": userId,
+		"user_id":   userId,
+		"recipe_id": recipeId,
 	})
 	if err != nil && !errors.Is(err, entity.ErrorNotFound) {
 		return err
 	}
 	if userRating != nil {
-		return fmt.Errorf("user has already voted")
+		return entity.UserAlreadyVoted
 	}
 
 	userRating = &entity.UserRating{
@@ -414,5 +416,5 @@ func (c *culinaryAggregator) AddRating(ctx context.Context, userId, recipeId str
 		return err
 	}
 
-	return c.commit(contextTx)
+	return c.base.Commit(contextTx)
 }

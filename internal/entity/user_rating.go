@@ -1,6 +1,13 @@
 package entity
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+var (
+	UserAlreadyVoted = errors.New("user has already voted")
+)
 
 type UserRating struct {
 	Guid      string

@@ -1,0 +1,8 @@
+ALTER TABLE IF EXISTS "recipe" DROP COLUMN IF EXISTS "rating";
+ALTER TABLE IF EXISTS "recipe" DROP COLUMN IF EXISTS "number_of_ratings";
+ALTER TABLE IF EXISTS "recipe" DROP COLUMN IF EXISTS "overall_rating";
+
+DROP TABLE IF EXISTS "user_ratings";
+
+ALTER TABLE IF EXISTS "recipe" DROP COLUMN IF EXISTS "image";
+ALTER TABLE IF EXISTS "cooking_steps" DROP COLUMN IF EXISTS "image";

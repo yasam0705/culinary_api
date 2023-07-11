@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate mockgen -destination=tests/mocks/user.go -package=mocks -source=users.go
 type User interface {
 	Create(ctx context.Context, m *entity.User) error
 	Update(ctx context.Context, m *entity.User) error

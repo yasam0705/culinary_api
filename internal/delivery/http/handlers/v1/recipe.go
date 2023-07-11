@@ -242,6 +242,7 @@ func (r *recipeHandlers) convertToEntityCreate(reqBody *models.CreateAggregatorR
 			OrderNumber: v.OrderNumber,
 			Description: v.Description,
 			CookingTime: v.CookingTime,
+			Image:       v.Image,
 		})
 	}
 
@@ -250,6 +251,7 @@ func (r *recipeHandlers) convertToEntityCreate(reqBody *models.CreateAggregatorR
 			Title:       reqBody.Recipe.Title,
 			Description: reqBody.Recipe.Description,
 			CookingTime: allCookingTime,
+			Image:       reqBody.Recipe.Image,
 		},
 		Ingredients:  ingredients,
 		CookingSteps: steps,
@@ -279,6 +281,7 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 			OrderNumber: v.OrderNumber,
 			Description: v.Description,
 			CookingTime: v.CookingTime,
+			Image:       v.Image,
 		})
 	}
 
@@ -288,6 +291,7 @@ func (r *recipeHandlers) convertToEntityUpdate(reqBody *models.UpdateRecipeReque
 			Title:       reqBody.Recipe.Title,
 			Description: reqBody.Recipe.Description,
 			CookingTime: allCookingTime,
+			Image:       reqBody.Recipe.Image,
 		},
 		Ingredients:  ingredients,
 		CookingSteps: steps,
@@ -314,19 +318,18 @@ func (r *recipeHandlers) RecipeRating(c *gin.Context) {
 		errors_pkg.Error(c, err)
 		return
 	}
+	authData, ok := helper.GetFromStorage(c)
+	if !ok {
+		errors_pkg.Error(c, fmt.Errorf("user not found"))
+		return
+	}
 
 	if reqBody.Rating <= 0 && reqBody.Rating > 5 {
 		errors_pkg.Error(c, fmt.Errorf("rating must be from 1 to 5"))
 		return
 	}
 
-	userId, ok := c.Get("user_id")
-	if !ok {
-		errors_pkg.Error(c, fmt.Errorf("user not found"))
-		return
-	}
-
-	if err := r.culinaryAggregator.AddRating(ctx, userId.(string), reqBody.RecipeId, reqBody.Rating); err != nil {
+	if err := r.culinaryAggregator.AddRating(ctx, authData["user_id"], reqBody.RecipeId, reqBody.Rating); err != nil {
 		errors_pkg.Error(c, err)
 		return
 	}
