@@ -67,7 +67,7 @@ type UpdateRecipeResponse struct {
 }
 
 type RecipeRatingRequest struct {
-	Rating   int8   `json:"rating" minimum:"0" maximum:"6"`
+	Rating   int8   `json:"rating" minimum:"0" maximum:"5"`
 	RecipeId string `json:"recipe_id"`
 }
 
