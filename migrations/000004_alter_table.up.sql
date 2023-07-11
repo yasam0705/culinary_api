@@ -5,11 +5,13 @@ ALTER TABLE IF EXISTS "recipe" ADD COLUMN IF NOT EXISTS "overall_rating" NUMERIC
 
 CREATE TABLE IF NOT EXISTS "user_ratings"(
     "guid"          UUID PRIMARY KEY,
-    "user_id"       VARCHAR NOT NULL UNIQUE,
+    "user_id"       VARCHAR NOT NULL ,
     "recipe_id"     VARCHAR NOT NULL DEFAULT '',
     "rating"        SMALLINT NOT NULL DEFAULT 0,
     "created_at"    TIMESTAMP DEFAULT now()
 );
+
+ALTER TABLE IF EXISTS "user_ratings" ADD UNIQUE ("user_id", "recipe_id");
 
 
 ALTER TABLE IF EXISTS "recipe" ADD COLUMN IF NOT EXISTS "image" VARCHAR NOT NULL DEFAULT '';
